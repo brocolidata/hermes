@@ -22,6 +22,7 @@ We can configure 3 types of nodes :
 
 ## Source configuration 🛫
 Sources configuration are defined under the `sources:` list :
+
 | Configuration key    | Description                                                   | Required |
 |---------------------|---------------------------------------------------------------|----------|
 | `name`              | name of the source                                            | yes      |
@@ -36,6 +37,7 @@ Sources configuration are defined under the `sources:` list :
 To use this source : 
 - set the type of the [Source configuration](#source-configuration) to `custom`
 - define the following keys under `config:` :
+
 | Configuration key    | Description                                                                  | Required |
 |---------------------|------------------------------------------------------------------------------|----------|
 | `function_name`     | Name of the entrypoint function to get data from the source                  | yes      |
@@ -45,6 +47,7 @@ To use this source :
 
 ## Destination configuration 🛬
 Destinations configuration are defined under the `destinations:` list :
+
 | Configuration key | Description                                                        | Required |
 |-------------------|--------------------------------------------------------------------|----------|
 | name              | name of the destination                                            | yes      |
@@ -60,6 +63,7 @@ Destinations configuration are defined under the `destinations:` list :
 To use this source : 
 - set the type of the [Destination configuration](#destination-configuration) to `object_storage`
 - define the following keys under `config:` :
+
 | Configuration key | Description                                              | Required |
 |-------------------|----------------------------------------------------------|----------|
 | service           | Name of the service. See supported services              | yes      |

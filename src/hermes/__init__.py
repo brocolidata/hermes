@@ -1,0 +1,1 @@
+from hermes.main import extract_load #noqa

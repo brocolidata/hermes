@@ -1,0 +1,6 @@
+.DS_Store
+# poetry.lock
+__pycache__/
+.pytest_cache
+
+src/tests/assets/artifacts/**

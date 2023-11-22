@@ -1,0 +1,45 @@
+name: 'CI Pipeline'
+
+on:
+  pull_request:
+    types:
+      - "opened"
+      - "synchronize"
+    paths:
+      - 'src/**'
+
+jobs:
+
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Git Checkout'
+        uses: actions/checkout@v2
+      - name: 'Setup Python'
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      - name: 'Install test dependencies'
+        run: |
+          pip install poetry
+          pip list
+      - name: 'Install dependencies'
+        id: install_dependencies
+        working-directory: ${{ github.workspace }}/src
+        run: |
+          poetry install --no-interaction --no-root
+          poetry show --no-interaction
+      - name: 'Run tests'
+        id: run_tests
+        if: steps.install_dependencies.outcome == 'success'
+        working-directory: ${{ github.workspace }}/src/tests
+        env:
+          HERMES_CONFIG_FOLDER: "${{ github.workspace }}/tests/assets/config"
+          HERMES_ARTIFACTS_FOLDER: "${{ github.workspace }}/tests/assets/artifacts"
+          HERMES_CUSTOM_CONNECTORS_FOLDER: "${{ github.workspace }}/tests/assets/custom"
+        run: |
+          poetry run --no-interaction pytest --junit-xml pytest_.xml
+      - name: 'Publish tests results'
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          files: "${{ github.workspace }}/src/tests/pytest_.xml"

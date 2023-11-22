@@ -34,9 +34,9 @@ jobs:
         if: steps.install_dependencies.outcome == 'success'
         working-directory: ${{ github.workspace }}/src/tests
         env:
-          HERMES_CONFIG_FOLDER: "${{ github.workspace }}/tests/assets/config"
-          HERMES_ARTIFACTS_FOLDER: "${{ github.workspace }}/tests/assets/artifacts"
-          HERMES_CUSTOM_CONNECTORS_FOLDER: "${{ github.workspace }}/tests/assets/custom"
+          HERMES_CONFIG_FOLDER: "${{ github.workspace }}/src/tests/assets/config"
+          HERMES_ARTIFACTS_FOLDER: "${{ github.workspace }}/src/tests/assets/artifacts"
+          HERMES_CUSTOM_CONNECTORS_FOLDER: "${{ github.workspace }}/src/tests/assets/custom"
         run: |
           poetry run --no-interaction pytest --junit-xml pytest_.xml
       - name: 'Publish tests results'

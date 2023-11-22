@@ -1,0 +1,30 @@
+sources:
+  - name: dirham_change_rates
+    description: |
+      A RDBMS source for testing purposes
+    type: custom
+    config: 
+      function_name: get_dirham_change_rates
+      module_path: "change_rates.py"
+      kwargs: 
+        endpoint: 'https://www.floatrates.com/daily/mad.json'
+      outputs:
+        df: dirham_change_rates
+destinations:
+  - name: demo_gcs_destination
+    description: |
+      A Google Cloud Storage destination for testing purposes
+    type: object_storage
+    config:
+      service: gcs
+      format: parquet
+      bucket: a-bucket
+      partitioning:
+        - name: date
+          type: datetime
+
+pipelines:
+  - name: sync_sales
+    source: dirham_change_rates
+    destination: demo_gcs_destination
+    schedule: '0 20 * * 1-5'

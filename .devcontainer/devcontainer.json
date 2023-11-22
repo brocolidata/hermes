@@ -1,0 +1,41 @@
+{
+    "name": "Hermes Dev Lab",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--name", "hermes_dev_lab"
+    ],
+    "containerEnv": {
+        "HERMES_CONFIG_FOLDER":"/hermes/tests/assets/config",
+        "HERMES_ARTIFACTS_FOLDER":"/hermes/tests/assets/artifacts",
+        "HERMES_CUSTOM_CONNECTORS_FOLDER":"/hermes/tests/assets/custom",
+        "PYDEVD_WARN_EVALUATION_TIMEOUT":"500"
+    },
+    "workspaceMount": "source=${localWorkspaceFolder}/src/,target=/hermes,type=bind",
+    "workspaceFolder": "/hermes",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+				"ms-python.python",
+				"njpwerner.autodocstring",
+				"bungcip.better-toml",
+				"charliermarsh.ruff"
+			],
+            "settings": {
+                "files.autoSave": "off",
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestEnabled": true,
+                "[python]": {
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.ruff": true,
+                        "source.organizeImports.ruff": true
+                    }
+                }
+            }
+        }
+    }
+}

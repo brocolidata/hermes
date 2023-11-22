@@ -67,6 +67,8 @@ def write_definitions():
     #         dc_all_nodes[node_type][node_name] = node_config
     if artifact_file_path.exists():
         logger.info(f'Overwriting existing {settings.HERMES_DEFINITIONS_FILE}')
+    else:
+        artifact_file_path.mkdir(parents=True, exist_ok=True)
     with open(artifact_file_path, 'w') as f:
         json.dump(dc_definitions, f)
 

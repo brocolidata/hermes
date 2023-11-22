@@ -1,6 +1,8 @@
 import pathlib
 from runpy import run_path
+import typing
 
+import omegaconf
 import pandas as pd
 
 from hermes import settings
@@ -23,7 +25,7 @@ class CustomSource(BaseSource):
         self.function_obj = self._get_function()
 
     
-    def _get_function(self) -> function:
+    def _get_function(self) -> typing.Callable:
         """Get entrypoint function for the source connector
 
         Raises:

@@ -30,4 +30,4 @@ dev = [
 ]
 
 [tool.uv]
-default-groups = ["aws"]
+default-groups = ["dev", "aws"]

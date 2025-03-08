@@ -23,8 +23,12 @@ def set_aws_env_vars(monkeypatch):
 @pytest.fixture
 def set_hermes_config_folder(monkeypatch):
     """Fixture to set environment variables for tests."""
+    current_dir = pathlib.Path(__file__).parent.as_posix()
+
     monkeypatch.setenv(
-        "HERMES_CONFIG_FOLDER", "tests/assets/config/test_athena_iceberg"
+        # "HERMES_CONFIG_FOLDER", "tests/assets/config/test_athena_iceberg"
+        "HERMES_CONFIG_FOLDER",
+        f"{current_dir}/tests/assets/config/",
     )
     yield  # Provide the environment setup to tests
 
@@ -93,3 +97,9 @@ def demo_config():
     )
     config = omegaconf.OmegaConf.load(TEST_CONFIG_PATH)
     return config
+
+
+@pytest.fixture
+def test_folder():
+    current_dir = pathlib.Path(__file__).parent.as_posix()
+    return current_dir

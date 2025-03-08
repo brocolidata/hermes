@@ -10,16 +10,18 @@ SOURCE_TABLE_NAME = "dirham_change_rates"
 
 
 @pytest.fixture
-def set_hermes_config_folder(monkeypatch):
+def set_config_for_object_storage(monkeypatch, test_folder):
     """Fixture to set environment variables for tests."""
     monkeypatch.setenv(
-        "HERMES_CONFIG_FOLDER", "tests/assets/config/test_object_storage"
+        # "HERMES_CONFIG_FOLDER", "tests/assets/config/test_object_storage"
+        "HERMES_CONFIG_FOLDER",
+        f"{test_folder}/assets/config/test_object_storage",
     )
     yield  # Provide the environment setup to tests
 
 
 def test_object_storage(
-    set_hermes_config_folder,
+    set_config_for_object_storage,
     set_aws_env_vars,
     mock_custom_source_extract,
     mock_fsspec_open,

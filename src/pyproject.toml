@@ -28,3 +28,6 @@ dev = [
     "moto>=5.1.1",
     "pytest>=8.3.4",
 ]
+
+[tool.uv]
+default-groups = ["aws"]

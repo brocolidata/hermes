@@ -1,8 +1,8 @@
+import abc
 import pathlib
-from runpy import run_path
 import typing
+from runpy import run_path
 
-import omegaconf
 import pandas as pd
 
 from hermes import settings
@@ -10,8 +10,7 @@ from hermes.sources.utils import BaseSource
 
 
 class CustomSource(BaseSource):
-    """Custom source connector.
-    """
+    """Custom source connector."""
 
     def __init__(self, source_config):
         """Create an instance of the connector
@@ -22,10 +21,16 @@ class CustomSource(BaseSource):
         self.name = source_config.name
         self.description = source_config.description
         self.config = source_config.config
-        self.function_obj = self._get_function()
+        self.output_tables = source_config.config.tables
+        self.extractor_obj = self._get_extractor()
 
-    
-    def _get_function(self) -> typing.Callable:
+    def _get_table_config(self, table_name):
+        table_config = list(filter(lambda t: t.name == table_name, self.output_tables))[
+            0
+        ]
+        return table_config
+
+    def _get_extractor(self) -> typing.Callable:
         """Get entrypoint function for the source connector
 
         Raises:
@@ -34,27 +39,41 @@ class CustomSource(BaseSource):
         Returns:
             function: Source connector entrypoint function
         """
-        function_name = self.config.function_name
+        extractor_name = self.config.extractor
         module_file_path = self.config.module_path
         custom_connectors_path = settings.get_custom_connectors_folder()
         module_path = pathlib.Path(custom_connectors_path, module_file_path)
         module_obj = run_path(module_path)
-        function_obj = module_obj.get(function_name)
-        if not function_obj:
+        extractor_obj = module_obj.get(extractor_name)
+        if not extractor_obj:
             raise ValueError(
-                f'{function_name} function cannot be found in {module_path.as_posix()}'
+                f"{extractor_name} function cannot be found in {module_path.as_posix()}"
             )
-        return function_obj
+        return extractor_obj
 
-    
-    def extract(self) -> dict[str, pd.DataFrame]:
+    def extract(self, source_table) -> dict[str, pd.DataFrame]:
         """Extract data from the source
 
         Returns:
             dict[str, pd.DataFrame]: Data extracted from the source
         """
-        kwargs = self.config.kwargs
-        outputs_dc = self.function_obj(**kwargs)
-        return outputs_dc
+        table_config = self._get_table_config(source_table)
+        kwargs = table_config.kwargs
+        extractor = self.extractor_obj()
+        dc_outputs = extractor.extract(**kwargs)
+        return dc_outputs
 
-        
+    def process_data(self, dc_outputs):
+        extractor = self.extractor_obj()
+        processed_data = extractor.process_data(dc_outputs)
+        return processed_data
+
+
+class CustomSourceExtractor(abc.ABC):
+    @abc.abstractmethod
+    def extract():
+        return NotImplemented
+
+    @abc.abstractmethod
+    def process_data(raw_data: dict) -> dict[str, pd.DataFrame]:
+        return NotImplemented

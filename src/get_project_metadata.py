@@ -3,7 +3,7 @@ import argparse
 import tomllib
 
 
-def get_project_metadata(key):
+def get_project_metadata(key: str) -> str:
     with open("pyproject.toml", "rb") as f:
         data = tomllib.load(f)
     metadata = data["project"][key]

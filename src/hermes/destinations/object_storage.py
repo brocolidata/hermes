@@ -1,5 +1,7 @@
+import json
+
+import fsspec
 import omegaconf
-import pandas as pd
 
 from hermes import settings
 from hermes.destinations.utils import BaseDestination
@@ -8,11 +10,11 @@ from hermes.destinations.utils import BaseDestination
 class ObjectStorageDestination(BaseDestination):
     """Destination connector for Object Storage services.
 
-    Included services : 
+    Included services :
     - Google Cloud Storage
     - AWS S3
     """
-    
+
     def __init__(self, destination_config: omegaconf.dictconfig.DictConfig):
         """Create an instance of the connector
 
@@ -25,6 +27,7 @@ class ObjectStorageDestination(BaseDestination):
         self.service = self.config.service
         self.prefix = self._get_prefix()
         self.format = self.config.format
+        self.data_stage = "raw"
 
     def _get_prefix(self) -> str:
         """Get prefix for object storage URI
@@ -32,30 +35,25 @@ class ObjectStorageDestination(BaseDestination):
         Returns:
             str: Prefix
         """
-        prefix = getattr(
-            settings.ObjectStorageServicesPrefixes, 
-            self.service
-        ).value
+        prefix = getattr(settings.ObjectStorageServicesPrefixes, self.service).value
         return prefix
-    
-    def get_object_path(self, table: str) -> str:
+
+    def get_object_path(self, source_name, source_table_name: str) -> str:
         """Get object storage URI
 
         Args:
-            table (str): Destination table name
+            source_name (str): Name of the source
+            source_table_name (str): Name of the source table
 
         Returns:
-            str: _description_
+            str: The destination path of the file in the object storage service
         """
-        path = f"{self.prefix}://{self.bucket}/{table}/{table}.{self.format}"
+        # TODO: Define a convention for the landing zone path (include an ID, timestamp)
+        path = f"{self.prefix}://{self.bucket}/{source_name}/{source_table_name}.{self.format}"
         return path
 
-    def load(self, dc_extract_outputs:dict[str, pd.DataFrame]):
-        """Load data outputs of extract connector to destination
-
-        Args:
-            dc_extract_outputs (dict[str, pd.DataFrame]): Outputs of extract connector
-        """
-        for table, df in dc_extract_outputs.items():
-            object_path = self.get_object_path(table)
-            df.to_parquet(object_path)
+    def load(self, source_name, source_table_name, data):
+        file_path = self.get_object_path(source_name, source_table_name)
+        fs = fsspec.open(urlpath=file_path, mode="w")
+        with fs as f:
+            json.dump(data, f)

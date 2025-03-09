@@ -6,6 +6,10 @@ sources:
     config: 
       extractor: FloatRatesSourceExtractor
       module_path: "change_rates.py"
+      kwargs: 
+        endpoint: 'https://www.floatrates.com/daily/mad.json'
+      # outputs:
+      #   float_rates: dirham_change_rates
       tables:
         - name: dirham_change_rates
           data_key: float_rates
@@ -13,14 +17,6 @@ sources:
             endpoint: 'https://www.floatrates.com/daily/mad.json'
 
 destinations:
-  - name: landing_zone
-    description: |
-      A S3 bucket used for landing raw data
-    type: object_storage
-    config:
-      service: s3
-      format: json
-      bucket: a-bucket
   - name: demo_athena_iceberg
     description: |
       A Google Cloud Storage destination for testing purposes
@@ -32,10 +28,10 @@ destinations:
 pipelines:
   - name: sync_float_rates
     sources: 
+      # - dirham_change_rates
       - name: float_rates
         tables: 
           - dirham_change_rates
     destinations: 
-      - landing_zone
       - demo_athena_iceberg
     schedule: '0 20 * * 1-5'

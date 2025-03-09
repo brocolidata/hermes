@@ -1,6 +1,5 @@
 import json
 import pathlib
-from functools import lru_cache
 
 import omegaconf
 
@@ -28,10 +27,8 @@ def load_definitions() -> dict[str, dict]:
     """"""
     config_path = pathlib.Path(settings.get_config_folder())
     ls_node_types = [n.value for n in settings.NodeTypes]
-    dc_definitions = {
-        element:{} for element in ls_node_types
-    }
-    for config_file_path in config_path.rglob('*.yml'):
+    dc_definitions = {element: {} for element in ls_node_types}
+    for config_file_path in config_path.rglob("*.yml"):
         config_file = omegaconf.OmegaConf.load(config_file_path)
         for element in ls_node_types:
             if element in config_file:
@@ -41,7 +38,9 @@ def load_definitions() -> dict[str, dict]:
                             f"The {element_name} {element[:-1]} is already defined"
                         )
                     else:
-                        dc_definitions[element][element_name] = config_file_path.as_posix()
+                        dc_definitions[element][element_name] = (
+                            config_file_path.as_posix()
+                        )
     return dc_definitions
 
 
@@ -53,8 +52,7 @@ def load_definitions() -> dict[str, dict]:
 
 
 def write_definitions():
-    """Write definitions.yml artifact
-    """
+    """Write definitions.yml artifact"""
     dc_definitions = load_definitions()
     artifact_file_path = settings.get_definition_file_path()
     # ls_node_types = [n.value for n in settings.NodeTypes]
@@ -66,10 +64,10 @@ def write_definitions():
     #         node_config = load_node_from_file(file_path, node_type, node_name)
     #         dc_all_nodes[node_type][node_name] = node_config
     if artifact_file_path.exists():
-        logger.info(f'Overwriting existing {settings.HERMES_DEFINITIONS_FILE}')
+        logger.info(f"Overwriting existing {settings.HERMES_DEFINITIONS_FILE}")
     elif not artifact_file_path.parent.exists():
         artifact_file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(artifact_file_path, 'w') as f:
+    with open(artifact_file_path, "w") as f:
         json.dump(dc_definitions, f)
 
 
@@ -79,7 +77,32 @@ def get_definitions_from_file() -> omegaconf.dictconfig.DictConfig:
     return definitions
 
 
+def load_and_merge_configs():
+    config_path = settings.get_config_folder()
+    merged_config = omegaconf.OmegaConf.create(
+        {"sources": [], "destinations": [], "pipelines": []}
+    )
+
+    # for file in config_path.glob("*.yaml"):
+    for config_file_path in config_path.rglob("*.yml"):
+        # yaml_config = omegaconf.OmegaConf.load(file)
+        yaml_config = omegaconf.OmegaConf.load(config_file_path)
+        for key in ["sources", "destinations", "pipelines"]:
+            if key in yaml_config:
+                merged_config[key].extend(yaml_config[key])
+
+    artifact_file_path = settings.get_definition_file_path()
+    if artifact_file_path.exists():
+        logger.info(f"Overwriting existing {settings.HERMES_DEFINITIONS_FILE}")
+    elif not artifact_file_path.parent.exists():
+        artifact_file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(artifact_file_path, "w") as f:
+        json.dump(
+            omegaconf.OmegaConf.to_container(merged_config, resolve=True), f, indent=2
+        )
+
+
 def parse_project():
     # load_node_from_file.cache_clear()
-    write_definitions()
-
+    # write_definitions()
+    load_and_merge_configs()

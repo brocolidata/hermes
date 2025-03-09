@@ -1,1 +1,1 @@
-from hermes.main import extract_load #noqa
+from hermes.main import run_pipeline

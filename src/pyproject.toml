@@ -1,22 +1,32 @@
-[tool.poetry]
+[project]
 name = "hermes"
-version = "0.1.0"
-description = "A simple Serverless-compatible data Extract-Load framework"
-authors = ["brocolidata <contact.brocolidata@gmail.com>"]
+version = "0.2.0"
+description = "Add your description here"
 readme = "README.md"
-packages = [{include = "hermes"}]
+authors = [
+    { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fsspec>=2025.2.0",
+    "omegaconf>=2.3.0",
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "requests>=2.32.3",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-omegaconf = "^2.3.0"
-pandas = "^2.0.3"
-pyarrow = "^12.0.1"
-requests = "^2.31.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-ruff = "^0.0.284"
+[project.optional-dependencies]
+aws = [
+    "awswrangler>=3.10.1",
+    "s3fs>=2025.2.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "moto>=5.1.1",
+    "pytest>=8.3.4",
+]

@@ -3,10 +3,16 @@ from hermes import pipeline as pipeline_utils
 
 logger = logging_utils.get_logger()
 
-def extract_load(pipeline_name: str):
-    logger.info('Parsing Hermes project...')
+
+def run_pipeline(pipeline_name: str):
+    """Run a pipeline
+
+    Args:
+        pipeline_name (str): Name of the pipeline to run
+    """
+    logger.info("Parsing Hermes project...")
     utils.parse_project()
-    logger.info(f'Running {pipeline_name} pipeline...')
+    logger.info(f"Running {pipeline_name} pipeline...")
     pipeline = pipeline_utils.get_pipeline(pipeline_name)
     pipeline.run()
-    logger.info(f'Successfully run {pipeline_name} pipeline')
+    logger.info(f"Successfully run {pipeline_name} pipeline")

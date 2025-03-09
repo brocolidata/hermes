@@ -39,9 +39,9 @@ jobs:
       - name: 'Create Release'
         if: github.event.pull_request.merged == true
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          name: ${{ env.PACKAGE_NAME }}
+          name: '${{ env.PACKAGE_NAME }}_v${{ env.PACKAGE_VERSION }}'
           tag_name: '${{ env.PACKAGE_NAME }}_v${{ env.PACKAGE_VERSION }}'
           generate_release_notes: true
           files: |

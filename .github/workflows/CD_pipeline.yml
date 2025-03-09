@@ -30,6 +30,7 @@ jobs:
       
       - name: 'Build distribution'
         id: build_distribution
+        working-directory: ${{ github.workspace }}/src
         run: |
           uv build
           echo "PACKAGE_VERSION=$(python3 get_project_metadata.py version)" >> $GITHUB_ENV

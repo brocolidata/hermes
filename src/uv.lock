@@ -336,7 +336,7 @@ wheels = [
 
 [[package]]
 name = "hermes"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "fsspec" },
@@ -346,11 +346,13 @@ dependencies = [
     { name = "requests" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 aws = [
     { name = "awswrangler" },
     { name = "s3fs" },
 ]
+
+[package.dev-dependencies]
 dev = [
     { name = "moto" },
     { name = "pytest" },
@@ -358,18 +360,17 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "awswrangler", marker = "extra == 'aws'", specifier = ">=3.10.1" },
     { name = "fsspec", specifier = ">=2025.2.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pyarrow", specifier = ">=19.0.1" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "s3fs", marker = "extra == 'aws'", specifier = ">=2025.2.0" },
 ]
+provides-extras = ["aws"]
 
 [package.metadata.requires-dev]
-aws = [
-    { name = "awswrangler", specifier = ">=3.10.1" },
-    { name = "s3fs", specifier = ">=2025.2.0" },
-]
 dev = [
     { name = "moto", specifier = ">=5.1.1" },
     { name = "pytest", specifier = ">=8.3.4" },

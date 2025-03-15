@@ -17,11 +17,12 @@ SOURCE_TABLE_NAME = "dirham_change_rates"
 def mock_object_storage_config():
     """Fixture to provide a mock object storage configuration."""
     config_dict = {
+        "name": "landing_zone",
         "config": {
             "bucket": BUCKET_NAME,
             "format": "json",
             "service": "s3",
-        }
+        },
     }
     return omegaconf.OmegaConf.create(config_dict)
 
@@ -29,6 +30,7 @@ def mock_object_storage_config():
 def test_object_storage_destination_init(mock_object_storage_config):
     """Test the initialization of ObjectStorageDestination."""
     destination = ObjectStorageDestination(mock_object_storage_config)
+    assert destination.name == "landing_zone"
     assert destination.bucket == BUCKET_NAME
     assert destination.file_format == "json"
     assert destination.service == "s3"

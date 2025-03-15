@@ -82,3 +82,9 @@ def get_definition_file_path() -> pathlib.Path:
     artifact_folder = get_artifacts_folder()
     definition_file_path = pathlib.Path(artifact_folder, HERMES_DEFINITIONS_FILE)
     return definition_file_path
+
+### Logging messages
+ATHENA_ICEBERG_ANTE_PROCESS_MSG = """
+    Athena Iceberg: start loading data to {glue_database}.{glue_table}.
+        table location: {table_location}, temp path: {temp_path}
+"""

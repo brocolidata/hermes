@@ -2,6 +2,10 @@ import awswrangler as wr
 import omegaconf
 
 from hermes.destinations.utils import BaseDestination
+from hermes.logging_utils import get_logger
+from hermes.settings import ATHENA_ICEBERG_ANTE_PROCESS_MSG
+
+logger = get_logger()
 
 
 class AthenaIcebergDestination(BaseDestination):
@@ -14,36 +18,41 @@ class AthenaIcebergDestination(BaseDestination):
             destination_config (omegaconf.dictconfig.DictConfig): configuration for the destination
         """
         self.config = destination_config.config
-        # self.bucket = self.config.bucket
-        # self.file_format = self.config.format
-        # self.service = self.config.service
-        # self.prefix = self._get_prefix()
-        # self.format = self.config.format
+        self.name = destination_config.name
         self.data_stage = "processed"
-
+        self.temp_path = self.config.temp_path
         self.glue_database = self.config.glue_database
-        # self.glue_table = self.config.glue_table
         self.table_location = self.config.table_location
 
-    def get_temp_path(self):
-        return ""
+    def _get_table_location(self, source_name: str, source_table_name: str) -> str:
+        table_location = f"{self.table_location}/{source_name}/{source_table_name}/"
+        return table_location
 
-    # def load(self, dc_extract_outputs:dict[str, pd.DataFrame]):
+    def _get_temp_path(self, source_name: str, source_table_name: str) -> str:
+        temp_path = f"{self.temp_path}/{source_name}/{source_table_name}/"
+        return temp_path
+
     def load(self, source_name, source_table_name, data):
         """Load data outputs of extract connector to destination
 
         Args:
             dc_extract_outputs (dict[str, pd.DataFrame]): Outputs of extract connector
         """
-        # source_name = list(dc_extract_outputs.keys())[0]
-        # for table_name, df in dc_extract_outputs[source_name].items():
         # TODO: Determine how source is used (dedicated Glue database or use it as prefix in table name)
+        table_location = self._get_table_location(source_name, source_table_name)
+        temp_path = self._get_temp_path(source_name, source_table_name)
+        # Logging Ante
+        formated_ante_msg = ATHENA_ICEBERG_ANTE_PROCESS_MSG.format(
+            glue_database=self.glue_database,
+            glue_table=source_table_name,
+            table_location=table_location,
+            temp_path=temp_path,
+        )
+        logger.info(formated_ante_msg)
         wr.athena.to_iceberg(
             df=data,
-            # database=self.glue_database,
-            database=f"dl_raw_{source_name}",
-            # table=self.glue_table,
+            database=self.glue_database,
             table=source_table_name,
-            table_location=self.table_location,
-            temp_path=self.get_temp_path(),
+            table_location=table_location,
+            temp_path=temp_path,
         )

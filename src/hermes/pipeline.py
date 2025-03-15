@@ -150,7 +150,7 @@ class Pipeline:
             data=data,
         )
         logger.info(
-            f"Successfully ingested data from source:{source_connector.name} to destination:{destination_connector}"
+            f"Successfully ingested data from source: {source_connector.name} to destination: {destination_connector.name}"
         )
 
     def run(self):

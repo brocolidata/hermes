@@ -40,7 +40,13 @@ def test_athena_iceberg(
     pd.testing.assert_frame_equal(actual_call_args["df"], expected_df)
 
     # Compare other arguments
-    assert actual_call_args["database"] == f"dl_raw_{SOURCE_NAME}"
+    assert actual_call_args["database"] == "raw_glue_database"
     assert actual_call_args["table"] == SOURCE_TABLE_NAME
-    assert actual_call_args["table_location"] == "a-bucket"
-    assert actual_call_args["temp_path"] == ""
+    assert (
+        actual_call_args["table_location"]
+        == "s3://a-bucket/table-location/float_rates/dirham_change_rates/"
+    )
+    assert (
+        actual_call_args["temp_path"]
+        == "s3://a-bucket/temp-path/float_rates/dirham_change_rates/"
+    )

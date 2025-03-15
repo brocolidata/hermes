@@ -22,6 +22,7 @@ class ObjectStorageDestination(BaseDestination):
             destination_config (omegaconf.dictconfig.DictConfig): configuration for the destination
         """
         self.config = destination_config.config
+        self.name = destination_config.name
         self.bucket = self.config.bucket
         self.file_format = self.config.format
         self.service = self.config.service

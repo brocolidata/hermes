@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import omegaconf
 import pytest
 
+from hermes.exceptions import PipelineError
 from hermes.pipeline import Pipeline, get_pipeline
 
 PIPELINE_NAME = "sync_float_rates"
@@ -65,5 +66,8 @@ def test_get_pipeline_not_found(mock_get_definitions):
     mock_get_definitions.return_value = omegaconf.OmegaConf.create(
         {"pipelines": [{"name": "another_pipeline"}]}
     )
-    with pytest.raises(ValueError, match="sync_float_rates pipeline does not exist"):
+    ERROR_MSG = """error during configuration retrieval for pipeline sync_float_rates.
+            error : sync_float_rates configuration cannot be found
+        """
+    with pytest.raises(PipelineError, match=ERROR_MSG):
         get_pipeline("sync_float_rates")

@@ -1,10 +1,12 @@
 import json
+from unittest.mock import patch
 
 import omegaconf
 import pytest
 
 from hermes import settings
 from hermes.destinations.object_storage import ObjectStorageDestination
+from hermes.exceptions import ObjectStorageDestinationError
 
 # TEST_PIPELINE_NAME = "sync_float_rates"
 BUCKET_NAME = "a-bucket"
@@ -32,7 +34,6 @@ def test_object_storage_destination_init(mock_object_storage_config):
     destination = ObjectStorageDestination(mock_object_storage_config)
     assert destination.name == "landing_zone"
     assert destination.bucket == BUCKET_NAME
-    assert destination.file_format == "json"
     assert destination.service == "s3"
     assert destination.prefix == TEST_SERVICE_PREFIX
     assert destination.format == "json"
@@ -87,3 +88,14 @@ def test_load(mock_object_storage_config, mock_fsspec_open):
         call.args[0] for call in mock_file_instance.write.call_args_list
     )
     assert json.loads(written_data) == data
+
+
+@patch("fsspec.open", side_effect=Exception("Filesystem error"))
+def test_load_object_storage_exception(mock_fsspec_open, mock_object_storage_config):
+    """Test that ObjectStorageDestination.load raises an exception on fsspec error."""
+    destination = ObjectStorageDestination(mock_object_storage_config)
+    data = {"key": "value"}
+    with pytest.raises(ObjectStorageDestinationError):
+        destination.load("test_source", "test_table", data)
+
+    mock_fsspec_open.assert_called_once()

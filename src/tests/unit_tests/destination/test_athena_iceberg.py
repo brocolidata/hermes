@@ -1,8 +1,12 @@
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
+from botocore.exceptions import BotoCoreError
 from omegaconf import DictConfig
 
 from hermes.destinations.athena_iceberg import AthenaIcebergDestination
+from hermes.exceptions import AthenaIcebergDestinationError
 
 
 @pytest.fixture
@@ -43,3 +47,15 @@ def test_load_data(mock_athena_to_iceberg, test_destination_config, test_datafra
         table_location="s3://a-bucket/table-location/test_source/test_table/",
         temp_path="s3://a-bucket/temp-path/test_source/test_table/",
     )
+
+
+@patch("awswrangler.athena.to_iceberg", side_effect=BotoCoreError)
+def test_load_data_exception(
+    mock_athena_to_iceberg, test_destination_config, test_dataframe
+):
+    """Test that AthenaIcebergDestination.load raises an exception on BotoCoreError."""
+    destination = AthenaIcebergDestination(test_destination_config)
+    with pytest.raises(AthenaIcebergDestinationError):
+        destination.load("test_source", "test_table", test_dataframe)
+
+    mock_athena_to_iceberg.assert_called_once()

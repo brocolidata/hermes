@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from botocore.exceptions import BotoCoreError
 
 import hermes
 
@@ -13,11 +14,10 @@ SOURCE_TABLE_NAME = "dirham_change_rates"
 def set_config_for_object_storage(monkeypatch, test_folder):
     """Fixture to set environment variables for tests."""
     monkeypatch.setenv(
-        # "HERMES_CONFIG_FOLDER", "tests/assets/config/test_object_storage"
         "HERMES_CONFIG_FOLDER",
         f"{test_folder}/assets/config/test_object_storage",
     )
-    yield  # Provide the environment setup to tests
+    yield
 
 
 def test_object_storage(
@@ -27,7 +27,18 @@ def test_object_storage(
     mock_fsspec_open,
     get_dirham_change_rates_data,
 ):
-    hermes.run_pipeline(TEST_PIPELINE_NAME)
+    pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
+    pipeline.run()
+
+    # Assert successes are recorded in the Pipeline object
+    SUCCESSES = [
+        {
+            "source_name": "float_rates",
+            "source_table_name": "dirham_change_rates",
+            "destination_name": "landing_zone",
+        }
+    ]
+    assert pipeline.successes == SUCCESSES
 
     mock_fsspec, mock_file_instance = mock_fsspec_open  # Unpack fixture
 
@@ -52,3 +63,26 @@ def test_object_storage(
         call.args[0] for call in mock_file_instance.write.call_args_list
     )
     assert json.loads(written_data) == get_dirham_change_rates_data
+
+
+def test_object_storage_exception(
+    set_config_for_object_storage,
+    set_aws_env_vars,
+    mock_custom_source_extract,
+    mock_fsspec_open,
+    get_dirham_change_rates_data,
+):
+    mocked_open, _ = mock_fsspec_open
+    mocked_open.side_effect = BotoCoreError
+    pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
+    pipeline.run()
+    ERRORS = [
+        {
+            "source_name": "float_rates",
+            "source_table_name": "dirham_change_rates",
+            "destination_name": "landing_zone",
+            "error_type": "ObjectStorageDestinationError",
+            "error_message": "Object Storage: error while loading data to landing_zone, located at s3://a-bucket/float_rates/dirham_change_rates.json.\n            error : An unspecified error occurred\n        ",
+        }
+    ]
+    assert pipeline.errors == ERRORS

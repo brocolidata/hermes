@@ -22,8 +22,9 @@ destinations:
       A Google Cloud Storage destination for testing purposes
     type: athena_iceberg
     config:
-      glue_database: parquet
-      table_location: a-bucket
+      glue_database: raw_glue_database
+      table_location: s3://a-bucket/table-location
+      temp_path: s3://a-bucket/temp-path
       
 pipelines:
   - name: sync_float_rates

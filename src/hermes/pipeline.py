@@ -1,5 +1,7 @@
+from itertools import product
 import omegaconf
 from hermes import connectors, utils, logging_utils
+from hermes import exceptions as hermes_exceptions
 
 logger = logging_utils.get_logger()
 
@@ -20,6 +22,8 @@ class Pipeline:
         self.destinations_names = pipeline.destinations
         self.sources_connectors = self._get_sources_connectors()
         self.destinations_connectors = self._get_destinations_connectors()
+        self.successes = []
+        self.errors = []
 
     def _get_sources_tables(self) -> dict[str, list]:
         """Retrieve source tables from the pipeline configuration.
@@ -128,54 +132,116 @@ class Pipeline:
         return output
 
     def _process_extract_and_load(
-        self, source_extract, source_table_name, source_connector, destination_connector
+        self, source_table_name: str, source_connector: str, destination_connector: str
     ):
-        """Process and load extracted data to the destination connector.
+        """Extract, process, and load data from a source table to a destination.
 
         Args:
-            source_extract: Extracted data.
-            source_table_name (str): Name of the source table.
-            source_connector: Source connector object.
-            destination_connector: Destination connector object.
+            source_table_name (str): name of the source table
+            source_connector (str): source connector object
+            destination_connector (str): destination connector object
+
+        Raises:
+            SourceError: if data extraction from the source fails
+            DestinationError: if data loading to the destination fails
+
+        Returns:
+            None
         """
+
+        # Extract data from source
+        try:
+            logger.info(
+                f"Extracting raw data for source:{source_connector.name} table:{source_table_name}.."
+            )
+            source_extract = source_connector.extract(source_table_name)
+            logger.info(
+                f"Successfully extracted raw data from {source_connector.name} table:{source_table_name}."
+            )
+        except hermes_exceptions.SourceError as e:
+            self._collect_errors(
+                source_name=source_connector.name,
+                source_table_name=source_table_name,
+                destination_name=destination_connector.name,
+                error=e,
+            )
+            return None
+
+        # Process data
         data = self._process_extract(
             source_extract=source_extract,
             source_connector=source_connector,
             source_table_name=source_table_name,
             data_stage=destination_connector.data_stage,
         )
-        destination_connector.load(
-            source_name=source_connector.name,
-            source_table_name=source_table_name,
-            data=data,
-        )
-        logger.info(
-            f"Successfully ingested data from source:{source_connector.name} to destination:{destination_connector}"
+
+        # Load data to destination
+        try:
+            destination_connector.load(
+                source_name=source_connector.name,
+                source_table_name=source_table_name,
+                data=data,
+            )
+            logger.info(
+                f"""Successfully ingested data from source: {source_connector.name} table:{source_table_name} 
+                to destination: {destination_connector.name}"""
+            )
+            self.successes.append(
+                {
+                    "source_name": source_connector.name,
+                    "source_table_name": source_table_name,
+                    "destination_name": destination_connector.name,
+                }
+            )
+        except hermes_exceptions.DestinationError as e:
+            self._collect_errors(
+                source_name=source_connector.name,
+                source_table_name=source_table_name,
+                destination_name=destination_connector.name,
+                error=e,
+            )
+
+    def _collect_errors(
+        self,
+        source_name: str,
+        source_table_name: str,
+        destination_name: str,
+        error: Exception,
+    ):
+        """Append an error to pipeline errors
+
+        Args:
+            source_name (str): name of the source
+            source_table_name (str): name of the source table
+            destination_name (str): name of the destination
+            error (Exception): Exception raised
+        """
+        self.errors.append(
+            {
+                "source_name": source_name,
+                "source_table_name": source_table_name,
+                "destination_name": destination_name,
+                "error_type": type(error).__name__,
+                "error_message": str(error),
+            }
         )
 
     def run(self):
         """Sequentially run all steps of the pipeline."""
-        for source_connector in self.sources_connectors:
-            sources_tables = self._get_tables_for_source(source_connector.name)
+        source_destination_combinations = product(
+            self.sources_connectors, self.destinations_connectors
+        )
+        for source_connector, destination_connector in source_destination_combinations:
             logger.info(f"Starting extraction for source:{source_connector.name}:")
-            for source_table_name in sources_tables:
-                logger.info(
-                    f"Extracting raw data for source:{source_connector.name} table:{source_table_name}.."
+            for source_table_name in self._get_tables_for_source(source_connector.name):
+                self._process_extract_and_load(
+                    source_table_name,
+                    source_connector,
+                    destination_connector,
                 )
-                source_extract = source_connector.extract(source_table_name)
-                logger.info(
-                    f"Successfully extracted raw data from {source_connector.name} table:{source_table_name}."
-                )
-                for destination_connector in self.destinations_connectors:
-                    self._process_extract_and_load(
-                        source_extract,
-                        source_table_name,
-                        source_connector,
-                        destination_connector,
-                    )
-            logger.info(f"Done ingesting data for source:{source_connector.name}")
 
 
+@utils.setup_project
 def get_pipeline(pipeline_name: str) -> Pipeline:
     """Get pipeline object.
 
@@ -183,15 +249,20 @@ def get_pipeline(pipeline_name: str) -> Pipeline:
         pipeline_name (str): Name of the pipeline defined in a configuration file
 
     Raises:
-        ValueError: The pipeline can't be found
+        PipelineError: The pipeline can't be found
 
     Returns:
         Pipeline: Corresponding pipeline object
     """
     definitions = utils.get_definitions_from_file()
     pipelines = definitions.pipelines
-    if pipeline_name not in [p.name for p in pipelines]:
-        raise ValueError(f"{pipeline_name} pipeline does not exist")
-    pipeline_config = list(filter(lambda p: p.name == pipeline_name, pipelines))[0]
-    pipeline_obj = Pipeline(pipeline_config)
+    try:
+        pipeline_config = list(filter(lambda p: p.name == pipeline_name, pipelines))[0]
+        pipeline_obj = Pipeline(pipeline_config)
+    except IndexError:
+        raise hermes_exceptions.PipelineError(
+            name=pipeline_name,
+            process_step="configuration retrieval",
+            error=f"{pipeline_name} configuration cannot be found",
+        )
     return pipeline_obj

@@ -7,7 +7,6 @@ import pytest
 from hermes.utils import (
     get_definitions_from_file,
     load_and_merge_configs,
-    load_config,
     load_definitions,
     write_definitions,
 )
@@ -49,17 +48,6 @@ def mock_node_types():
         ),
     ):
         yield
-
-
-@patch("hermes.utils.omegaconf.OmegaConf.load")
-def test_load_config(mock_omegaconf_load, mock_config_path):
-    """Test loading a config file."""
-    mock_omegaconf_load.return_value = omegaconf.OmegaConf.create({"test": "value"})
-
-    config = load_config("test.yml")
-
-    assert config["test"] == "value"
-    mock_omegaconf_load.assert_called_once_with(pathlib.Path("/mock/config/test.yml"))
 
 
 @patch("hermes.utils.settings.get_config_folder")
@@ -142,32 +130,6 @@ def test_write_definitions(mock_settings, mock_load_definitions):
 
         # Check that exists method was called on artifact_file_path
         mock_artifact_file_path.exists.assert_called_once()
-
-
-# def test_write_definitions(mock_settings):
-#     # Mock the definition file path
-#     mock_settings.get_definition_file_path.return_value = pathlib.Path(
-#         "/mock/path/definitions.yml"
-#     )
-
-#     # Mock load_definitions to return some mock data
-#     with patch("hermes.utils.load_definitions") as mock_load_definitions:
-#         mock_load_definitions.return_value = {
-#             "sources": {"source1": "/mock/path/source.yml"}
-#         }
-
-#         # Patch the open function to simulate file writing
-#         with patch("builtins.open", mock_open()) as mocked_file:
-#             write_definitions()
-
-#             # Check if the open function was called with the correct file path
-#             mocked_file.assert_called_once_with(
-#                 pathlib.Path("/mock/path/definitions.yml"), "w"
-#             )
-
-#             # Check if json.dump was called with the correct content to write as a single call
-#             expected_data = '{"sources": {"source1": "/mock/path/source.yml"}}'
-#             mocked_file().write.assert_called_once_with(expected_data)
 
 
 @patch("hermes.utils.omegaconf.OmegaConf.load")

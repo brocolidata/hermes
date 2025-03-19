@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "aiobotocore"
-version = "2.21.0"
+version = "2.21.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -19,18 +19,18 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/04/e2/ecad5c3bd9a340f52e5b852b53a4c466526dc4f216af2e4dc06e9a9f259e/aiobotocore-2.21.0.tar.gz", hash = "sha256:03d64a41e313ebce76fd7c3e4c854e560032ac5cf71f4d5072616ca6fb9701b5", size = 108653 }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/dc/f5f872fb01ce37c09525cedc7ecfad7002ffe2a8a23f77d7d2c234399b51/aiobotocore-2.21.1.tar.gz", hash = "sha256:010357f43004413e92a9d066bb0db1f241aeb29ffed306e9197061ffc94e6577", size = 108900 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/b1/861aac7eb2b656c7f633e1d4dc14d73adfb74754708150ddcda5b75ed517/aiobotocore-2.21.0-py3-none-any.whl", hash = "sha256:05b4e29690a07913297686d819dc8dac341a5361f14fedf444bdd77ae1e36554", size = 78092 },
+    { url = "https://files.pythonhosted.org/packages/95/67/026598918f92145156f2feb7957f57daefda20375cc2ac1a0692a9b8010b/aiobotocore-2.21.1-py3-none-any.whl", hash = "sha256:bd7c49a6d6f8a3d9444b0a94417c8da13813b5c7eec1c4f0ec2db7e8ce8f23e7", size = 78313 },
 ]
 
 [[package]]
 name = "aiohappyeyeballs"
-version = "2.4.6"
+version = "2.5.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/08/07/508f9ebba367fc3370162e53a3cfd12f5652ad79f0e0bfdf9f9847c6f159/aiohappyeyeballs-2.4.6.tar.gz", hash = "sha256:9b05052f9042985d32ecbe4b59a77ae19c006a78f1344d7fdad69d28ded3d0b0", size = 21726 }
+sdist = { url = "https://files.pythonhosted.org/packages/a2/0c/458958007041f4b4de2d307e6b75d9e7554dad0baf26fe7a48b741aac126/aiohappyeyeballs-2.5.0.tar.gz", hash = "sha256:18fde6204a76deeabc97c48bdd01d5801cfda5d6b9c8bbeb1aaaee9d648ca191", size = 22494 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/4c/03fb05f56551828ec67ceb3665e5dc51638042d204983a03b0a1541475b6/aiohappyeyeballs-2.4.6-py3-none-any.whl", hash = "sha256:147ec992cf873d74f5062644332c539fcd42956dc69453fe5204195e560517e1", size = 14543 },
+    { url = "https://files.pythonhosted.org/packages/1b/9a/e4886864ce06e1579bd428208127fbdc0d62049c751e4e9e3b509c0059dc/aiohappyeyeballs-2.5.0-py3-none-any.whl", hash = "sha256:0850b580748c7071db98bffff6d4c94028d0d3035acc20fd721a0ce7e8cac35d", size = 15128 },
 ]
 
 [[package]]
@@ -336,20 +336,24 @@ wheels = [
 
 [[package]]
 name = "hermes"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "fsspec" },
     { name = "omegaconf" },
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "requests" },
 ]
 
 [package.optional-dependencies]
 aws = [
     { name = "awswrangler" },
+]
+aws-essentials = [
     { name = "s3fs" },
+]
+core = [
+    { name = "pandas" },
+    { name = "pyarrow" },
+    { name = "requests" },
 ]
 
 [package.dev-dependencies]
@@ -363,12 +367,12 @@ requires-dist = [
     { name = "awswrangler", marker = "extra == 'aws'", specifier = ">=3.10.1" },
     { name = "fsspec", specifier = ">=2025.2.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pyarrow", specifier = ">=19.0.1" },
-    { name = "requests", specifier = ">=2.32.3" },
-    { name = "s3fs", marker = "extra == 'aws'", specifier = ">=2025.2.0" },
+    { name = "pandas", marker = "extra == 'core'", specifier = ">=2.2.3" },
+    { name = "pyarrow", marker = "extra == 'core'", specifier = ">=19.0.1" },
+    { name = "requests", marker = "extra == 'core'", specifier = ">=2.32.3" },
+    { name = "s3fs", marker = "extra == 'aws-essentials'", specifier = ">=2025.2.0" },
 ]
-provides-extras = ["aws"]
+provides-extras = ["aws", "core", "aws-essentials"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -1,6 +1,6 @@
 [project]
 name = "hermes"
-version = "0.2.0"
+version = "0.2.1"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -10,14 +10,18 @@ requires-python = ">=3.12"
 dependencies = [
     "fsspec>=2025.2.0",
     "omegaconf>=2.3.0",
-    "pandas>=2.2.3",
-    "pyarrow>=19.0.1",
-    "requests>=2.32.3",
 ]
 
 [project.optional-dependencies]
 aws = [
     "awswrangler>=3.10.1",
+]
+core = [
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "requests>=2.32.3",
+]
+aws-essentials = [
     "s3fs>=2025.2.0",
 ]
 

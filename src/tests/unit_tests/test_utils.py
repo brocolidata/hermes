@@ -4,10 +4,12 @@ from unittest.mock import MagicMock, mock_open, patch
 import omegaconf
 import pytest
 
+from hermes.exceptions import ConfigLoadError
 from hermes.utils import (
     get_definitions_from_file,
     load_and_merge_configs,
     load_definitions,
+    validate_definition_file,
     write_definitions,
 )
 
@@ -66,8 +68,48 @@ def test_load_definitions(mock_omegaconf_load, mock_rglob, mock_get_config_folde
 
     # Mock YAML file contents
     mock_omegaconf_load.side_effect = [
-        omegaconf.OmegaConf.create({"sources": [{"name": "sourceA"}]}),  # source1.yml
-        omegaconf.OmegaConf.create({"sources": [{"name": "sourceB"}]}),  # source2.yml
+        omegaconf.OmegaConf.create(
+            {
+                "sources": [
+                    {
+                        "name": "sourceA",
+                        "type": "custom",
+                        "config": {
+                            "extractor": "ExtractorSourceA",
+                            "module_path": "moduleSourceA",
+                            "tables": [
+                                {
+                                    "name": "tableA",
+                                    "data_key": "table_a",
+                                    "kwargs": {"url": "https://www.sourceaurl.com"},
+                                }
+                            ],
+                        },
+                    }
+                ]
+            }
+        ),  # source1.yml
+        omegaconf.OmegaConf.create(
+            {
+                "sources": [
+                    {
+                        "name": "sourceB",
+                        "type": "custom",
+                        "config": {
+                            "extractor": "ExtractorSourceB",
+                            "module_path": "moduleSourceB",
+                            "tables": [
+                                {
+                                    "name": "tableB",
+                                    "data_key": "table_b",
+                                    "kwargs": {"url": "https://www.sourceburl.com"},
+                                }
+                            ],
+                        },
+                    }
+                ]
+            }
+        ),  # source2.yml
     ]
 
     # Run function
@@ -208,3 +250,69 @@ def test_load_and_merge_configs(mock_omegaconf_load, mock_settings):
                 handle,
                 indent=2,
             )
+
+
+@pytest.fixture
+def valid_definitions():
+    """Fixture to provide a valid YAML configuration"""
+    return omegaconf.OmegaConf.create(
+        {
+            "sources": [
+                {
+                    "name": "my_source",
+                    "description": "A sample source",
+                    "type": "custom",
+                    "config": {
+                        "extractor": "MyExtractor",
+                        "module_path": "my_module",
+                        "tables": [
+                            {"name": "table1", "data_key": "key1", "kwargs": {}}
+                        ],
+                    },
+                }
+            ],
+            "destinations": [
+                {
+                    "name": "my_destination",
+                    "description": "A sample destination",
+                    "type": "object_storage",
+                    "config": {
+                        "service": "s3",
+                        "format": "parquet",
+                        "bucket": "my-bucket",
+                    },
+                }
+            ],
+        }
+    )
+
+
+@pytest.fixture
+def invalid_definitions():
+    """Fixture to provide an invalid YAML configuration (missing required fields)"""
+    return omegaconf.OmegaConf.create(
+        {
+            "sources": [
+                {
+                    "name": "my_source",
+                    "description": "A sample source",
+                    "type": "custom",
+                    # Missing 'config'
+                }
+            ]
+        }
+    )
+
+
+def test_validate_definition_file_valid(valid_definitions):
+    """Test that validation succeeds with a valid definition"""
+    try:
+        validate_definition_file(valid_definitions)
+    except ConfigLoadError:
+        pytest.fail("validate_definition_file() raised ConfigLoadError unexpectedly!")
+
+
+def test_validate_definition_file_invalid(invalid_definitions):
+    """Test that validation fails with an invalid definition"""
+    with pytest.raises(ConfigLoadError, match="validation of YAML definitions"):
+        validate_definition_file(invalid_definitions)

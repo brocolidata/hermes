@@ -7,81 +7,110 @@ A simple Serverless-compatible data Extract-Load framework.
 # Installation
 TBD
 
-# Project configuration 🧰
-A working Hermes project requires to define : 
-- A **Hermes configuration folder**, via the `HERMES_CONFIG_FOLDER` environment variable
-- A **Hermes artifact folder**, via the `HERMES_ARTIFACTS_FOLDER` environment variable
-- A **Hermes custom connectors folder**, via the `HERMES_CUSTOM_CONNECTORS_FOLDER` environment variable
+# Hermes project Configuration 🧰  
+A working Hermes project requires defining:  
+- A **Hermes configuration folder**, via the `HERMES_CONFIG_FOLDER` environment variable  
+- A **Hermes artifact folder**, via the `HERMES_ARTIFACTS_FOLDER` environment variable  
+- A **Hermes custom connectors folder**, via the `HERMES_CUSTOM_CONNECTORS_FOLDER` environment variable  
 
-# Hermes configuration files ⚙️
-Hermes nodes are configured in `.yml` files located in the **Hermes configuration folder**.
-We can configure 3 types of nodes : 
-- **Sources 🛫** : Where the data is extracted from
-- **Destinations 🛬** : Where the data is loaded to
-- **Pipelines ✈️** : A data pipeline that combines a source & a destination 
+# Hermes Configuration Files ⚙️  
+Hermes nodes are configured in `.yml` files located in the **Hermes configuration folder**.  
+Each file can contain one or more of the following node types:  
+- **Sources 🛫**: Where the data is extracted from  
+- **Destinations 🛬**: Where the data is loaded to  
+- **Pipelines ✈️**: A data pipeline that connects sources & destinations  
 
-## Source configuration 🛫
-Sources configuration are defined under the `sources:` list :
+## Source Configuration 🛫  
+Sources are defined under the `sources:` list:
 
-| Configuration key    | Description                                                   | Required |
-|---------------------|---------------------------------------------------------------|----------|
-| `name`              | name of the source                                            | yes      |
-| `description`       | description of the source                                     | yes      |
-| `type`              | type of the source. See TBD                                   | yes      |
-| `config`             | configuration for the source. See corresponding configuration | yes      |
+| Configuration Key  | Description                                                   | Required |
+|--------------------|---------------------------------------------------------------|----------|
+| `name`            | Name of the source                                            | yes      |
+| `description`     | Description of the source                                     | yes      |
+| `type`           | Type of the source. See supported sources                      | yes      |
+| `config`         | Configuration for the source. See corresponding source type    | yes      |
 
-**Supported sources (`type:`)** : 
-- [CustomSource](#customsource) 🛠️ : Extract data using a custom Python function
+**Supported sources (`type:`)**:  
+- [CustomSource](#customsource) 🛠️: Extract data using a custom Python function  
 
-### CustomSource 🛠️
-To use this source : 
-- set the type of the [Source configuration](#source-configuration) to `custom`
-- define the following keys under `config:` :
+### CustomSource 🛠️  
+To use this source:  
+- Set the type of the [Source configuration](#source-configuration) to `custom`  
+- Define the following keys under `config:`  
 
-| Configuration key    | Description                                                                  | Required |
-|---------------------|------------------------------------------------------------------------------|----------|
-| `function_name`     | Name of the entrypoint function to get data from the source                  | yes      |
-| `module_path`       | Module path relative to HERMES_CUSTOM_CONNECTORS_FOLDER                      | yes      |
-| `kwargs`            | Dict of keyword argument name (as key) and keyword argument value (as value) | yes      |
-| `outputs`           | Dict of output (as key) and pandas.DataFrame (as value)                      | yes      |
+| Configuration Key  | Description                                                              | Required |
+|--------------------|--------------------------------------------------------------------------|----------|
+| `extractor`       | The extractor class name                                                | yes      |
+| `module_path`     | Path to the Python module implementing the extractor                     | yes      |
+| `tables`          | List of tables extracted from the source                                | yes      |
 
-## Destination configuration 🛬
-Destinations configuration are defined under the `destinations:` list :
+Each table in `tables` has the following structure:
 
-| Configuration key | Description                                                        | Required |
-|-------------------|--------------------------------------------------------------------|----------|
-| name              | name of the destination                                            | yes      |
-| description       | description of the destination                                     | yes      |
-| type              | type of the destination. See TBD                                   | yes      |
-| config            | configuration for the destination. See corresponding configuration | yes      |
+| Configuration Key  | Description                                                 | Required |
+|--------------------|-------------------------------------------------------------|----------|
+| `name`            | Name of the table                                            | yes      |
+| `data_key`        | Key in the extracted data corresponding to this table        | yes      |
+| `kwargs`         | Dictionary of keyword arguments for the extractor            | yes      |
 
-**Supported destinations (`type:`)** : 
-- [ObjectStorage](#customsource) 🪣 : Load data to an object storage bucket (GCS/S3)
+---
 
+## Destination Configuration 🛬  
+Destinations are defined under the `destinations:` list:
 
-### ObjectStorage 🪣
-To use this source : 
-- set the type of the [Destination configuration](#destination-configuration) to `object_storage`
-- define the following keys under `config:` :
+| Configuration Key | Description                                                        | Required |
+|------------------|--------------------------------------------------------------------|----------|
+| `name`          | Name of the destination                                            | yes      |
+| `description`   | Description of the destination                                     | yes      |
+| `type`         | Type of the destination. See supported destinations                | yes      |
+| `config`       | Configuration for the destination. See corresponding destination type | yes      |
 
-| Configuration key | Description                                              | Required |
-|-------------------|----------------------------------------------------------|----------|
-| service           | Name of the service. See supported services              | yes      |
-| format            | File format used to load data. See supported file format | yes      |
-| bucket            | Destination bucket                                       | yes      |
+**Supported destinations (`type:`)**:  
+- [ObjectStorageDestination](#objectstoragedestination) 🪣: Load data to an object storage bucket (S3/GCS)  
+- [AthenaIcebergDestination](#athenaicebergdestination) ❄️: Load data into an Athena Iceberg table  
 
-**Supported services (`service:`)** : 
-- `gcs`
+### ObjectStorageDestination 🪣  
+To use this destination:  
+- Set the type of the [Destination configuration](#destination-configuration) to `object_storage`  
+- Define the following keys under `config:`  
 
-**Supported format (`format:`)** : 
-- `parquet`
+| Configuration Key  | Description                                              | Required |
+|--------------------|----------------------------------------------------------|----------|
+| `service`         | Name of the service (`s3` or `gcs`)                       | yes      |
+| `format`         | File format used to load data (`json`, `parquet`, etc.)    | yes      |
+| `bucket`         | Destination bucket name                                    | yes      |
 
-## Pipeline configuration ✈️
-Pipelines configuration are defined under the `pipelines:` list :
+### AthenaIcebergDestination ❄️  
+To use this destination:  
+- Set the type of the [Destination configuration](#destination-configuration) to `athena_iceberg`  
+- Define the following keys under `config:`  
 
-| Configuration key | Description                                                      | Required |
-|-------------------|------------------------------------------------------------------|----------|
-| `name`            | name of the pipeline                                             | yes      |
-| `source`          | source of the pipeline, it must be a configured source           | yes      |
-| `destination`     | destination of the pipeline, it must be a configured destination | yes      |
-| `schedule`        | A CRON schedule                                                  | yes      |
+| Configuration Key  | Description                                               | Required |
+|--------------------|-----------------------------------------------------------|----------|
+| `glue_database`   | The AWS Glue database where the Iceberg table is stored   | yes      |
+| `table_location`  | The S3 path where the table data is stored                 | yes      |
+| `temp_path`       | Temporary path in S3 for query execution                   | yes      |
+
+---
+
+## Pipeline Configuration ✈️  
+Pipelines are defined under the `pipelines:` list:
+
+| Configuration Key  | Description                                                      | Required |
+|--------------------|------------------------------------------------------------------|----------|
+| `name`            | Name of the pipeline                                             | yes      |
+| `sources`        | List of sources for the pipeline. Must match a configured source | yes      |
+| `destinations`   | List of destinations. Must match a configured destination        | yes      |
+| `schedule`       | A CRON schedule for execution                                    | yes      |
+
+Each source in `sources` has the following structure:
+
+| Configuration Key  | Description                                      | Required |
+|--------------------|--------------------------------------------------|----------|
+| `name`            | Name of the source (must match a defined source)  | yes      |
+| `tables`          | List of table names extracted from the source     | yes      |
+
+Each destination in `destinations` is a string referring to an existing destination.
+
+**Example CRON schedules (`schedule:`)**:
+- `"0 12 * * *"` → Run every day at 12:00 UTC
+- `"0 20 * * 1-5"` → Run at 20:00 UTC, Monday to Friday

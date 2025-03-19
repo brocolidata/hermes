@@ -105,23 +105,23 @@ def test_custom_source_process_data(
     assert processed_data.shape == (2, 2)  # Expecting 2 rows (USD, EUR) and 2 columns
 
 
-def test_custom_source_extractor_module_not_found(test_source_config):
+def test_custom_source_extractor_module_not_found(test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
     failing_source_config.config.extractor = "DoesNotExist"
-    ERROR_MSG = """Custom Source: error during initialization for source float_rates_source.
-            error : DoesNotExist function cannot be found in /hermes/tests/assets/custom/change_rates.py
+    ERROR_MSG = f"""Custom Source: error during initialization for source float_rates_source.
+            error : DoesNotExist function cannot be found in {test_folder}/assets/custom/change_rates.py
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
         CustomSource(failing_source_config)
 
 
-def test_custom_source_extractor_not_found(test_source_config):
+def test_custom_source_extractor_not_found(test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
     failing_source_config.config.extractor = "DoesNotExist"
-    ERROR_MSG = """Custom Source: error during initialization for source float_rates_source.
-            error : DoesNotExist function cannot be found in /hermes/tests/assets/custom/change_rates.py
+    ERROR_MSG = f"""Custom Source: error during initialization for source float_rates_source.
+            error : DoesNotExist function cannot be found in {test_folder}/assets/custom/change_rates.py
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
         CustomSource(failing_source_config)

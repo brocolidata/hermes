@@ -3,6 +3,8 @@ import json
 import pathlib
 
 import omegaconf
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 
 from hermes import logging_utils, settings
 from hermes.exceptions import ConfigLoadError
@@ -17,6 +19,7 @@ def load_definitions() -> dict[str, dict]:
     dc_definitions = {element: {} for element in ls_node_types}
     for config_file_path in config_path.rglob("*.yml"):
         config_file = omegaconf.OmegaConf.load(config_file_path)
+        validate_definition_file(config_file)
         for element in ls_node_types:
             if element in config_file:
                 for element_dc in getattr(config_file, element):
@@ -70,6 +73,28 @@ def load_and_merge_configs():
     with open(artifact_file_path, "w") as f:
         json.dump(
             omegaconf.OmegaConf.to_container(merged_config, resolve=True), f, indent=2
+        )
+
+
+def get_json_schema(file_name="json_schema"):
+    JSON_SCHEMAS_FOLDER = pathlib.Path(
+        pathlib.Path(__file__).parent.as_posix(), "json_schemas"
+    )
+    file_path = pathlib.Path(JSON_SCHEMAS_FOLDER, f"{file_name}.json")
+    with open(file_path) as f:
+        data = json.load(f)
+    return data
+
+
+def validate_definition_file(definitions):
+    dc_definitions = omegaconf.OmegaConf.to_container(definitions, resolve=True)
+    json_schema = get_json_schema()
+    try:
+        validate(dc_definitions, json_schema)
+    except ValidationError as e:
+        raise ConfigLoadError(
+            process_step="validation of YAML definitions",
+            error=str(e),
         )
 
 

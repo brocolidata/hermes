@@ -2,10 +2,9 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
+from custom_source.connector import CustomSource
+from custom_source.exceptions import CustomSourceError
 from omegaconf import DictConfig
-
-from hermes.exceptions import CustomSourceError
-from hermes.sources.custom import CustomSource
 
 
 @pytest.fixture
@@ -42,6 +41,7 @@ def mock_extractor():
     return extractor
 
 
+@pytest.mark.custom_source
 def test_custom_source_initialization(test_source_config):
     """Test that CustomSource initializes correctly."""
     with patch.object(
@@ -57,6 +57,7 @@ def test_custom_source_initialization(test_source_config):
         mock_get_extractor.assert_called_once()
 
 
+@pytest.mark.custom_source
 @patch.object(CustomSource, "_get_extractor")
 def test_custom_source_extract(mock_get_extractor, test_source_config, mock_extractor):
     """Test the extract method of CustomSource."""
@@ -80,6 +81,7 @@ def test_custom_source_extract(mock_get_extractor, test_source_config, mock_extr
     assert extracted_data["float_rates"] == {"USD": 1.0, "EUR": 0.85}
 
 
+@pytest.mark.custom_source
 @patch.object(CustomSource, "_get_extractor")
 def test_custom_source_process_data(
     mock_get_extractor, test_source_config, mock_extractor
@@ -105,6 +107,7 @@ def test_custom_source_process_data(
     assert processed_data.shape == (2, 2)  # Expecting 2 rows (USD, EUR) and 2 columns
 
 
+@pytest.mark.custom_source
 def test_custom_source_extractor_module_not_found(test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
@@ -116,6 +119,7 @@ def test_custom_source_extractor_module_not_found(test_source_config, test_folde
         CustomSource(failing_source_config)
 
 
+@pytest.mark.custom_source
 def test_custom_source_extractor_not_found(test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
@@ -127,6 +131,7 @@ def test_custom_source_extractor_not_found(test_source_config, test_folder):
         CustomSource(failing_source_config)
 
 
+@pytest.mark.custom_source
 @patch.object(CustomSource, "_get_extractor", return_value=lambda: MagicMock())
 def test_custom_source_table_not_found(mock_get_extractor, test_source_config):
     """Test that CustomSource raises an exception when table config is missing."""
@@ -138,6 +143,7 @@ def test_custom_source_table_not_found(mock_get_extractor, test_source_config):
         source.extract("missing_table")
 
 
+@pytest.mark.custom_source
 @patch.object(CustomSource, "_get_extractor")
 def test_custom_source_extract_exception(mock_get_extractor, test_source_config):
     """Test that CustomSource.extract raises an exception on extractor failure."""
@@ -152,6 +158,7 @@ def test_custom_source_extract_exception(mock_get_extractor, test_source_config)
         source.extract("float_rates")
 
 
+@pytest.mark.custom_source
 @patch.object(CustomSource, "_get_extractor")
 def test_custom_source_process_data_exception(mock_get_extractor, test_source_config):
     """Test that CustomSource.process_data raises an exception on processing failure."""

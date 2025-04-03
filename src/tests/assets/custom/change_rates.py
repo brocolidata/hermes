@@ -1,7 +1,9 @@
 import pandas as pd
 import requests as rq
 
-from hermes.sources.custom import CustomSourceExtractor
+# from hermes.sources.custom import CustomSourceExtractor
+# from hermes.connectors import get_connector
+from custom_source.connector import CustomSourceExtractor
 
 OUTPUT_NAME = "float_rates"
 

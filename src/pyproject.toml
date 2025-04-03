@@ -1,6 +1,6 @@
 [project]
 name = "hermes"
-version = "0.2.2"
+version = "0.3.0"
 description = "Lightweight Python data ingestion framework"
 readme = "README.md"
 authors = [
@@ -8,22 +8,36 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "fsspec>=2025.2.0",
     "jsonschema>=4.23.0",
     "omegaconf>=2.3.0",
+    "custom_source",
+    "athena_iceberg_destination",
+    "s3_destination"
 ]
+[tool.uv.sources]
+custom_source = { path = "./plugins/sources/custom", editable = true}
+athena_iceberg_destination = { path = "./plugins/destinations/athena_iceberg", editable = true }
+s3_destination = { path = "./plugins/destinations/s3", editable = true }
+generic_object_storage_destination = { path = "./plugins/destinations/generic_object_storage", editable = true}
 
 [project.optional-dependencies]
-aws = [
-    "awswrangler>=3.10.1",
+custom_source = [
+    "custom_source"
 ]
+
+athena_iceberg_destination = [
+    "athena_iceberg_destination"
+]
+
+s3_destination = [
+    "generic_object_storage_destination",
+    "s3_destination"
+]
+
 core = [
     "pandas>=2.2.3",
     "pyarrow>=19.0.1",
     "requests>=2.32.3",
-]
-aws-essentials = [
-    "s3fs>=2025.2.0",
 ]
 
 [build-system]
@@ -34,4 +48,8 @@ build-backend = "hatchling.build"
 dev = [
     "moto>=5.1.1",
     "pytest>=8.3.4",
+    
+]
+athena_iceberg_destination_dev = [
+    "awswrangler>=3.10.1",
 ]

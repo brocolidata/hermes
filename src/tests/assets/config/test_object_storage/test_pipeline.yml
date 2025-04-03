@@ -20,9 +20,8 @@ destinations:
   - name: landing_zone
     description: |
       A S3 bucket used for landing raw data
-    type: object_storage
+    type: s3
     config:
-      service: s3
       format: json
       bucket: a-bucket
       partitioning:

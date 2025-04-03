@@ -1,0 +1,18 @@
+[project]
+name = "custom_source"
+version = "0.1.0"
+description = "Hermes custom source connector"
+readme = "README.md"
+authors = [
+    { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "hermes"
+]
+
+[tool.uv.sources]
+# hermes = { path = "../../.." }
+
+[project.entry-points."hermes_plugins.sources"]
+custom = "custom_source.connector:CustomSource"

@@ -75,7 +75,6 @@ To use this destination:
 
 | Configuration Key  | Description                                              | Required |
 |--------------------|----------------------------------------------------------|----------|
-| `service`         | Name of the service (`s3` or `gcs`)                       | yes      |
 | `format`         | File format used to load data (`json`, `parquet`, etc.)    | yes      |
 | `bucket`         | Destination bucket name                                    | yes      |
 

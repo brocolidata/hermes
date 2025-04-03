@@ -23,7 +23,7 @@ jobs:
         id: install_dependencies
         working-directory: ${{ github.workspace }}/src
         run: |
-          uv sync --all-extras
+          uv sync --all-extras --all-groups
       - name: 'Run tests'
         id: run_tests
         if: steps.install_dependencies.outcome == 'success'

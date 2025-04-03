@@ -29,7 +29,6 @@ def test_dataframe():
     return pd.DataFrame({"id": [1, 2, 3], "value": ["A", "B", "C"]})
 
 
-@pytest.mark.athena_iceberg_destination
 def test_load_data(mock_athena_to_iceberg, test_destination_config, test_dataframe):
     """Test the load method of AthenaIcebergDestination."""
     destination = AthenaIcebergDestination(test_destination_config)
@@ -49,7 +48,6 @@ def test_load_data(mock_athena_to_iceberg, test_destination_config, test_datafra
     )
 
 
-@pytest.mark.athena_iceberg_destination
 @patch("awswrangler.athena.to_iceberg", side_effect=BotoCoreError)
 def test_load_data_exception(
     mock_athena_to_iceberg, test_destination_config, test_dataframe

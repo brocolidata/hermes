@@ -33,7 +33,6 @@ def mock_object_storage_config():
     return omegaconf.OmegaConf.create(config_dict)
 
 
-@pytest.mark.s3_destination
 def test_object_storage_destination_init(mock_object_storage_config):
     """Test the initialization of ObjectStorageDestination."""
     destination = S3Destination(mock_object_storage_config)
@@ -44,14 +43,12 @@ def test_object_storage_destination_init(mock_object_storage_config):
     assert destination.data_stage == "raw"
 
 
-@pytest.mark.s3_destination
 def test_get_prefix(mock_object_storage_config):
     """Test the _get_prefix method."""
     destination = S3Destination(mock_object_storage_config)
     assert destination.prefix == TEST_SERVICE_PREFIX
 
 
-@pytest.mark.s3_destination
 def test_get_object_path(mock_object_storage_config):
     """Test the get_object_path method."""
     destination = S3Destination(mock_object_storage_config)
@@ -62,7 +59,6 @@ def test_get_object_path(mock_object_storage_config):
     assert path == expected_path
 
 
-@pytest.mark.s3_destination
 def test_load(mock_object_storage_config, mock_fsspec_open):
     """Test the load method."""
     mock_fsspec, mock_file_instance = mock_fsspec_open
@@ -92,7 +88,6 @@ def test_load(mock_object_storage_config, mock_fsspec_open):
     assert json.loads(written_data) == data
 
 
-@pytest.mark.s3_destination
 @patch("fsspec.open", side_effect=Exception("Filesystem error"))
 def test_load_object_storage_exception(mock_fsspec_open, mock_object_storage_config):
     """Test that ObjectStorageDestination.load raises an exception on fsspec error."""

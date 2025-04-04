@@ -7,7 +7,7 @@ import omegaconf
 import pandas as pd
 
 from hermes import settings
-from hermes.exceptions import CustomSourceError
+from custom_source.exceptions import CustomSourceError
 from hermes.sources.utils import BaseSource
 
 

@@ -3,7 +3,7 @@ import omegaconf
 import pandas as pd
 
 from hermes.destinations.utils import BaseDestination
-from hermes.exceptions import AthenaIcebergDestinationError
+from athena_iceberg_destination.exceptions import AthenaIcebergDestinationError
 from hermes.logging_utils import get_logger
 from hermes.settings import ATHENA_ICEBERG_ANTE_PROCESS_MSG
 

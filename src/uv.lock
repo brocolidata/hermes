@@ -110,6 +110,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/3e/38/7859ff46355f76f8d19459005ca000b6e7012f2f1ca597746cbcd1fbfe5e/antlr4-python3-runtime-4.9.3.tar.gz", hash = "sha256:f224469b4168294902bb1efa80a8bf7855f24c99aef99cbefc1bcd3cce77881b", size = 117034 }
 
 [[package]]
+name = "athena-iceberg-destination"
+version = "0.2.2"
+source = { editable = "plugins/destinations/athena_iceberg" }
+dependencies = [
+    { name = "hermes" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "hermes" }]
+
+[package.metadata.requires-dev]
+dev = [{ name = "awswrangler", specifier = ">=3.10.1" }]
+
+[[package]]
 name = "attrs"
 version = "25.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -287,6 +301,17 @@ wheels = [
 ]
 
 [[package]]
+name = "custom-source"
+version = "0.2.2"
+source = { editable = "plugins/sources/custom" }
+dependencies = [
+    { name = "hermes" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "hermes" }]
+
+[[package]]
 name = "frozenlist"
 version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -335,29 +360,53 @@ wheels = [
 ]
 
 [[package]]
+name = "generic-object-storage-destination"
+version = "0.2.2"
+source = { editable = "plugins/destinations/generic_object_storage" }
+dependencies = [
+    { name = "fsspec" },
+    { name = "hermes" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fsspec", specifier = ">=2025.2.0" },
+    { name = "hermes" },
+]
+
+[[package]]
 name = "hermes"
 version = "0.2.2"
 source = { editable = "." }
 dependencies = [
-    { name = "fsspec" },
+    { name = "athena-iceberg-destination" },
+    { name = "custom-source" },
     { name = "jsonschema" },
     { name = "omegaconf" },
+    { name = "s3-destination" },
 ]
 
 [package.optional-dependencies]
-aws = [
-    { name = "awswrangler" },
-]
-aws-essentials = [
-    { name = "s3fs" },
+athena-iceberg-destination = [
+    { name = "athena-iceberg-destination" },
 ]
 core = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "requests" },
 ]
+custom-source = [
+    { name = "custom-source" },
+]
+s3-destination = [
+    { name = "generic-object-storage-destination" },
+    { name = "s3-destination" },
+]
 
 [package.dev-dependencies]
+athena-iceberg-destination-dev = [
+    { name = "awswrangler" },
+]
 dev = [
     { name = "moto" },
     { name = "pytest" },
@@ -365,18 +414,23 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "awswrangler", marker = "extra == 'aws'", specifier = ">=3.10.1" },
-    { name = "fsspec", specifier = ">=2025.2.0" },
+    { name = "athena-iceberg-destination", editable = "plugins/destinations/athena_iceberg" },
+    { name = "athena-iceberg-destination", marker = "extra == 'athena-iceberg-destination'", editable = "plugins/destinations/athena_iceberg" },
+    { name = "custom-source", editable = "plugins/sources/custom" },
+    { name = "custom-source", marker = "extra == 'custom-source'", editable = "plugins/sources/custom" },
+    { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pandas", marker = "extra == 'core'", specifier = ">=2.2.3" },
     { name = "pyarrow", marker = "extra == 'core'", specifier = ">=19.0.1" },
     { name = "requests", marker = "extra == 'core'", specifier = ">=2.32.3" },
-    { name = "s3fs", marker = "extra == 'aws-essentials'", specifier = ">=2025.2.0" },
+    { name = "s3-destination", editable = "plugins/destinations/s3" },
+    { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
 ]
-provides-extras = ["aws", "core", "aws-essentials"]
+provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "core"]
 
 [package.metadata.requires-dev]
+athena-iceberg-destination-dev = [{ name = "awswrangler", specifier = ">=3.10.1" }]
 dev = [
     { name = "moto", specifier = ">=5.1.1" },
     { name = "pytest", specifier = ">=8.3.4" },
@@ -895,6 +949,23 @@ wheels = [
 ]
 
 [[package]]
+name = "s3-destination"
+version = "0.2.2"
+source = { editable = "plugins/destinations/s3" }
+dependencies = [
+    { name = "generic-object-storage-destination" },
+    { name = "hermes" },
+    { name = "s3fs" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "generic-object-storage-destination", virtual = "plugins/destinations/generic_object_storage" },
+    { name = "hermes" },
+    { name = "s3fs", specifier = ">=2025.2.0" },
+]
+
+[[package]]
 name = "s3fs"
 version = "2025.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -922,11 +993,11 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "75.8.2"
+version = "77.0.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d1/53/43d99d7687e8cdef5ab5f9ec5eaf2c0423c2b35133a2b7e7bc276fc32b21/setuptools-75.8.2.tar.gz", hash = "sha256:4880473a969e5f23f2a2be3646b2dfd84af9028716d398e46192f84bc36900d2", size = 1344083 }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/df/9f719dc48f64284be8bd99e2e0bb0dd6e9f8e2c2c3c7bf7a685bc5adf2c7/setuptools-77.0.1.tar.gz", hash = "sha256:a1246a1b4178c66d7cf50c9fc6d530fac3f89bc284cf803c7fa878c41b1a03b2", size = 1366225 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/38/7d7362e031bd6dc121e5081d8cb6aa6f6fedf2b67bf889962134c6da4705/setuptools-75.8.2-py3-none-any.whl", hash = "sha256:558e47c15f1811c1fa7adbd0096669bf76c1d3f433f58324df69f3f5ecac4e8f", size = 1229385 },
+    { url = "https://files.pythonhosted.org/packages/40/50/bc3d02829a3babd70b7f1414c93cf6acd198976f0469a07d0e7b813c5002/setuptools-77.0.1-py3-none-any.whl", hash = "sha256:81a234dff81a82bb52e522c8aef145d0dd4de1fd6de4d3b196d0f77dc2fded26", size = 1254282 },
 ]
 
 [[package]]

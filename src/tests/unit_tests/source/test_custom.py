@@ -2,10 +2,9 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
+from custom_source.connector import CustomSource
+from custom_source.exceptions import CustomSourceError
 from omegaconf import DictConfig
-
-from hermes.exceptions import CustomSourceError
-from hermes.sources.custom import CustomSource
 
 
 @pytest.fixture

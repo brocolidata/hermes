@@ -5,9 +5,7 @@ from unittest.mock import mock_open, patch
 import omegaconf
 import pandas as pd
 import pytest
-
-import hermes
-import hermes.sources
+from custom_source.connector import CustomSource
 
 
 @pytest.fixture
@@ -74,7 +72,7 @@ def mock_custom_source_extract(get_dirham_change_rates_data):
     """Fixture to patch CustomSource.extract and return JSON content as DataFrame."""
 
     with patch.object(
-        hermes.sources.custom.CustomSource,
+        CustomSource,
         "extract",
         return_value={"float_rates": get_dirham_change_rates_data},
     ) as mock_extract:

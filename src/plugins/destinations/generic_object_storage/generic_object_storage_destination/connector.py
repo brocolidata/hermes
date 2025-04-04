@@ -1,11 +1,11 @@
+import abc
 import json
 
 import fsspec
 import omegaconf
 
-from hermes import settings
+from generic_object_storage_destination.exceptions import ObjectStorageDestinationError
 from hermes.destinations.utils import BaseDestination
-from hermes.exceptions import ObjectStorageDestinationError
 
 
 class ObjectStorageDestination(BaseDestination):
@@ -25,19 +25,13 @@ class ObjectStorageDestination(BaseDestination):
         self.config = destination_config.config
         self.name = destination_config.name
         self.bucket = self.config.bucket
-        self.service = self.config.service
-        self.prefix = self._get_prefix()
         self.format = self.config.format
         self.data_stage = "raw"
 
-    def _get_prefix(self) -> str:
-        """Get prefix for object storage path
-
-        Returns:
-            str: prefix
-        """
-        prefix = getattr(settings.ObjectStorageServicesPrefixes, self.service).value
-        return prefix
+    @property
+    @abc.abstractmethod
+    def prefix(self):
+        pass
 
     def get_object_path(self, source_name, source_table_name: str) -> str:
         """Get full object path

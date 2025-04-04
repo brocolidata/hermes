@@ -2,11 +2,10 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from athena_iceberg_destination.connector import AthenaIcebergDestination
+from athena_iceberg_destination.exceptions import AthenaIcebergDestinationError
 from botocore.exceptions import BotoCoreError
 from omegaconf import DictConfig
-
-from hermes.destinations.athena_iceberg import AthenaIcebergDestination
-from hermes.exceptions import AthenaIcebergDestinationError
 
 
 @pytest.fixture

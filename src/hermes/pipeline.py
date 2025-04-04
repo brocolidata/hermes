@@ -83,7 +83,7 @@ class Pipeline:
             )
         )
         connectors_objs = [
-            connectors.get_connector(dc_connector, connector_meta_type)
+            connectors.get_connector(dc_connector, meta_type_plural)
             for dc_connector in connectors_configs
         ]
         return connectors_objs

@@ -42,7 +42,7 @@ def mock_athena_to_iceberg():
         yield mock_to_iceberg  # Provide the mock to tests
 
 
-# def test_pipelines(patch_destination_load, pipeline_name):
+@pytest.mark.parametrize("pipeline_name", ["sync_float_rates"])
 def test_multi_destination_pipelines(
     set_aws_env_vars,
     mock_fsspec_open,

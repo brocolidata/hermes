@@ -1,0 +1,68 @@
+name: Build and Publish Lambda Layer
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install zip
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Export Requirements
+        working-directory: src
+        run: >
+          uv export 
+            --all-extras 
+            --no-dev 
+            --no-editable 
+            --format requirements-txt 
+            > lambda_layer_requirements.txt
+
+      - name: Create Lambda Layer directory
+        run: mkdir -p lambda_layer/python
+
+      - name: Install Dependencies for Layer
+        run: >
+          uv pip install 
+          --target=lambda_layer/python 
+          -r lambda_layer_requirements.txt
+
+      - name: Zip Lambda Layer
+        working-directory: src/src
+        run: zip -r lambda_layer.zip python
+
+      - name: Upload Lambda Layer as GitHub Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-zip-lambda-layer
+          path: lambda_layer/lambda_layer.zip
+          overwrite: true
+          if-no-files-found: error
+
+      - name: Create GitHub Release with Artifact Link
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: layer-v${{ github.run_number }}
+          release_name: Hermes Lambda Layer v${{ github.run_number }}
+          draft: false
+          prerelease: false
+          body: |
+            Lambda Layer containing dependencies for Hermes.
+            Download the artifact from the Actions tab or the release below.
+          artifacts: lambda_layer/lambda_layer.zip

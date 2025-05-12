@@ -25,11 +25,11 @@ jobs:
         working-directory: src
         run: >
           uv export 
-            --all-extras 
-            --no-dev 
-            --no-editable 
-            --format requirements-txt 
-            > lambda_layer_requirements.txt
+          --all-extras 
+          --no-dev 
+          --no-editable 
+          --format requirements-txt 
+          > lambda_layer_requirements.txt
 
       - name: Create Lambda Layer directory
         run: mkdir -p lambda_layer/python

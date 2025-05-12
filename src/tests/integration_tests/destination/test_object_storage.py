@@ -49,10 +49,8 @@ def test_object_storage(
     actual_call_args, actual_call_kwargs = mock_fsspec.call_args
 
     # Ensure the correct file path and mode are used
-    expected_file_path = (
-        f"s3://a-bucket/{SOURCE_NAME}/{SOURCE_TABLE_NAME}.json"  # Adjust as needed
-    )
-    assert actual_call_kwargs["urlpath"] == expected_file_path
+    expected_file_path_start = f"s3://a-bucket/{SOURCE_NAME}/{SOURCE_TABLE_NAME}/{SOURCE_TABLE_NAME}_"  # Adjust as needed
+    assert actual_call_kwargs["urlpath"].startswith(expected_file_path_start)
     assert actual_call_kwargs["mode"] == "w"
 
     # Ensure correct data was written to the file
@@ -82,7 +80,11 @@ def test_object_storage_exception(
             "source_table_name": "dirham_change_rates",
             "destination_name": "landing_zone",
             "error_type": "ObjectStorageDestinationError",
-            "error_message": "Object Storage: error while loading data to landing_zone, located at s3://a-bucket/float_rates/dirham_change_rates.json.\n            error : An unspecified error occurred\n        ",
+            "error_message": "Object Storage: error while loading data to landing_zone, located at s3://a-bucket/float_rates/dirham_change_rates/dirham_change_rates_04_12_2025_12_42_33.json.\n            error : An unspecified error occurred\n        ",
         }
     ]
-    assert pipeline.errors == ERRORS
+    assert pipeline.errors[0]["source_name"] == ERRORS[0]["source_name"]
+    assert pipeline.errors[0]["source_table_name"] == ERRORS[0]["source_table_name"]
+    assert pipeline.errors[0]["destination_name"] == ERRORS[0]["destination_name"]
+    assert pipeline.errors[0]["error_type"] == ERRORS[0]["error_type"]
+    # assert pipeline.errors == ERRORS

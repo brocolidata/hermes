@@ -50,9 +50,21 @@ Each table in `tables` has the following structure:
 |--------------------|-------------------------------------------------------------|----------|
 | `name`            | Name of the table                                            | yes      |
 | `data_key`        | Key in the extracted data corresponding to this table        | yes      |
-| `kwargs`         | Dictionary of keyword arguments for the extractor            | yes      |
+| `kwargs`         | Dictionary of keyword arguments for the extractor. Supports referencing [destination variables](#destination-variables-).             | yes      |
 
 ---
+
+Example : 
+```yaml
+tables:
+  - name: dirham_change_rates
+    data_key: float_rates
+    kwargs:
+      endpoint: 'https://www.floatrates.com/daily/mad.json'
+      last_date: $destinations.demo_athena_iceberg.variables.last_date
+
+```
+
 
 ## Destination Configuration 🛬  
 Destinations are defined under the `destinations:` list:
@@ -67,6 +79,19 @@ Destinations are defined under the `destinations:` list:
 **Supported destinations (`type:`)**:  
 - [ObjectStorageDestination](#objectstoragedestination) 🪣: Load data to an object storage bucket (S3/GCS)  
 - [AthenaIcebergDestination](#athenaicebergdestination) ❄️: Load data into an Athena Iceberg table  
+
+### Destination Variables 📦
+Hermes supports destination-level variables that can be queried at runtime and used inside your extraction logic — typically to enable incremental loading.
+
+These variables are defined as SQL queries in the destination config and can be referenced in source extractor kwargs. Hermes will evaluate these queries before the extraction phase and inject the values into the source configuration.
+
+To reference a destination variable in a source: `$destinations.<destination_name>.variables.<variable_name>`
+
+Example:
+```
+last_date: $destinations.demo_athena_iceberg.variables.last_date
+```
+The variable's value is injected before executing the extractor, so you can use it to query data since the last loaded timestamp, filter only new entries, etc.
 
 ### ObjectStorageDestination 🪣  
 To use this destination:  
@@ -88,8 +113,25 @@ To use this destination:
 | `glue_database`   | The AWS Glue database where the Iceberg table is stored   | yes      |
 | `table_location`  | The S3 path where the table data is stored                 | yes      |
 | `temp_path`       | Temporary path in S3 for query execution                   | yes      |
+| `variables` | Optional variables to query from the destination before extraction. Each variable must define a SQL query. | no |
 
 ---
+
+Example : 
+```yaml
+- name: demo_athena_iceberg
+  type: athena_iceberg
+  config:
+    glue_database: raw_glue_database
+    table_location: s3://a-bucket/table-location
+    temp_path: s3://a-bucket/hermes-temp-path
+  variables:
+    last_date:
+      query: SELECT MAX(date) FROM {this}
+
+```
+- `{this}` will be replaced with the full table identifier.
+- The result of the query will be used as a variable in source connectors that reference it.
 
 ## Pipeline Configuration ✈️  
 Pipelines are defined under the `pipelines:` list:

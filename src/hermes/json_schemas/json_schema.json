@@ -72,6 +72,20 @@
                 },
                 "temp_path": {
                     "type": "string"
+                },
+                "variables": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ]
+                    }
                 }
             },
             "required": [

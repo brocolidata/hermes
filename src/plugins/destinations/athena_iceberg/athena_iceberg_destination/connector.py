@@ -2,8 +2,8 @@ import awswrangler as wr
 import omegaconf
 import pandas as pd
 
+from athena_iceberg_destination.exceptions import AthenaIcebergDestinationError, AthenaIcebergDestinationVariableError
 from hermes.destinations.utils import BaseDestination
-from athena_iceberg_destination.exceptions import AthenaIcebergDestinationError
 from hermes.logging_utils import get_logger
 from hermes.settings import ATHENA_ICEBERG_ANTE_PROCESS_MSG
 
@@ -88,5 +88,28 @@ class AthenaIcebergDestination(BaseDestination):
                 glue_table=source_table_name,
                 table_location=table_location,
                 temp_path=temp_path,
+                process_step="load to",
+                error=str(e),
+            )
+
+    def get_destination_variable(self, variable_name, dc_variable: dict, table_name: str) -> dict:
+        try:
+            if wr.catalog.does_table_exist(database=self.glue_database, table=table_name):
+                query = dc_variable.query.format(this=table_name)
+                df = wr.athena.read_sql_query(
+                    sql=query,
+                    database=self.glue_database,
+                    ctas_approach=False,
+                    unload_approach=False,
+                )
+            else:
+                df = None
+            return {"data": df}
+        except Exception as e:
+            raise AthenaIcebergDestinationVariableError(
+                glue_database=self.glue_database,
+                glue_table=table_name,
+                variable_name=variable_name,
+                process_step="extract",
                 error=str(e),
             )

@@ -62,7 +62,7 @@ def test_athena_iceberg(
     )
     assert (
         actual_call_args["temp_path"]
-        == "s3://a-bucket/temp-path/float_rates/dirham_change_rates/"
+        == "s3://a-bucket/hermes-temp-path/float_rates/dirham_change_rates/"
     )
 
 
@@ -83,7 +83,7 @@ def test_athena_iceberg_exception(
             "source_table_name": "dirham_change_rates",
             "destination_name": "demo_athena_iceberg",
             "error_type": "AthenaIcebergDestinationError",
-            "error_message": "Athena Iceberg: error while loading data to raw_glue_database.dirham_change_rates.\n            table location: s3://a-bucket/table-location/float_rates/dirham_change_rates/, temp path: s3://a-bucket/temp-path/float_rates/dirham_change_rates/\n            error : An unspecified error occurred\n        ",
+            "error_message": "Athena Iceberg: error during load to raw_glue_database.dirham_change_rates.\n            table location: s3://a-bucket/table-location/float_rates/dirham_change_rates/, temp path: s3://a-bucket/hermes-temp-path/float_rates/dirham_change_rates/\n            error : An unspecified error occurred\n        ",
         }
     ]
     assert pipeline.errors == ERRORS

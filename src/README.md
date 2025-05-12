@@ -14,7 +14,7 @@ mkdir -p lambda_layer/python
 ```
 2. Generate the requirements.txt that will be used to fill the layer folder
 ```bash
-uv export --all-extras --no-dev --no-editable --format requirements-txt > lambda_layer_requirements.txt
+uv export --all-extras --no-extra ingestion_core --no-dev --no-editable --format requirements-txt > lambda_layer_requirements.txt
 ```
 
 3. Fill the layer folder

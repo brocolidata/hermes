@@ -31,7 +31,7 @@ s3_destination = [
     "s3_destination"
 ]
 
-core = [
+ingestion_core = [
     "pandas>=2.2.3",
     "pyarrow>=19.0.1",
     "requests>=2.32.3",

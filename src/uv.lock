@@ -376,7 +376,7 @@ requires-dist = [
 
 [[package]]
 name = "hermes"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "jsonschema" },
@@ -387,13 +387,13 @@ dependencies = [
 athena-iceberg-destination = [
     { name = "athena-iceberg-destination" },
 ]
-core = [
+custom-source = [
+    { name = "custom-source" },
+]
+ingestion-core = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "requests" },
-]
-custom-source = [
-    { name = "custom-source" },
 ]
 s3-destination = [
     { name = "generic-object-storage-destination" },
@@ -416,12 +416,12 @@ requires-dist = [
     { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
-    { name = "pandas", marker = "extra == 'core'", specifier = ">=2.2.3" },
-    { name = "pyarrow", marker = "extra == 'core'", specifier = ">=19.0.1" },
-    { name = "requests", marker = "extra == 'core'", specifier = ">=2.32.3" },
+    { name = "pandas", marker = "extra == 'ingestion-core'", specifier = ">=2.2.3" },
+    { name = "pyarrow", marker = "extra == 'ingestion-core'", specifier = ">=19.0.1" },
+    { name = "requests", marker = "extra == 'ingestion-core'", specifier = ">=2.32.3" },
     { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
 ]
-provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "core"]
+provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "ingestion-core"]
 
 [package.metadata.requires-dev]
 athena-iceberg-destination-dev = [{ name = "awswrangler", specifier = ">=3.10.1" }]

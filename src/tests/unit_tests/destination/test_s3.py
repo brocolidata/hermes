@@ -53,10 +53,8 @@ def test_get_object_path(mock_object_storage_config):
     """Test the get_object_path method."""
     destination = S3Destination(mock_object_storage_config)
     path = destination.get_object_path(SOURCE_NAME, SOURCE_TABLE_NAME)
-    expected_path = (
-        f"{TEST_SERVICE_PREFIX}://{BUCKET_NAME}/{SOURCE_NAME}/{SOURCE_TABLE_NAME}.json"
-    )
-    assert path == expected_path
+    expected_path_start = f"{TEST_SERVICE_PREFIX}://{BUCKET_NAME}/{SOURCE_NAME}/{SOURCE_TABLE_NAME}/{SOURCE_TABLE_NAME}_"
+    assert path.startswith(expected_path_start)
 
 
 def test_load(mock_object_storage_config, mock_fsspec_open):
@@ -68,14 +66,12 @@ def test_load(mock_object_storage_config, mock_fsspec_open):
 
     # Ensure `fsspec.open` was called at least once
     mock_fsspec.assert_called_once()
-    expected_path = (
-        f"{TEST_SERVICE_PREFIX}://{BUCKET_NAME}/{SOURCE_NAME}/{SOURCE_TABLE_NAME}.json"
-    )
+    expected_path_start = f"{TEST_SERVICE_PREFIX}://{BUCKET_NAME}/{SOURCE_NAME}/{SOURCE_TABLE_NAME}/{SOURCE_TABLE_NAME}_"
     # Extract actual call arguments
     actual_call_args, actual_call_kwargs = mock_fsspec.call_args
 
     # Ensure the correct file path and mode are used
-    assert actual_call_kwargs["urlpath"] == expected_path
+    assert actual_call_kwargs["urlpath"].startswith(expected_path_start)
     assert actual_call_kwargs["mode"] == "w"
 
     # Ensure correct data was written to the file

@@ -9,7 +9,9 @@ OUTPUT_NAME = "float_rates"
 
 
 class FloatRatesSourceExtractor(CustomSourceExtractor):
-    def extract(self, endpoint):
+    def extract(self, endpoint, last_date=None):
+        if last_date:
+            ...
         response = rq.get(endpoint)
         raw_data = response.json()
         return {OUTPUT_NAME: raw_data}

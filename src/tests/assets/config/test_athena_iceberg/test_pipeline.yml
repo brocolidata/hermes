@@ -15,6 +15,7 @@ sources:
           data_key: float_rates
           kwargs: 
             endpoint: 'https://www.floatrates.com/daily/mad.json'
+            last_date: $destinations.demo_athena_iceberg.variables.last_date
 
 destinations:
   - name: demo_athena_iceberg
@@ -24,7 +25,10 @@ destinations:
     config:
       glue_database: raw_glue_database
       table_location: s3://a-bucket/table-location
-      temp_path: s3://a-bucket/temp-path
+      temp_path: s3://a-bucket/hermes-temp-path
+    variables:
+      last_date: 
+        query: select max(date) from {this}
       
 pipelines:
   - name: sync_float_rates

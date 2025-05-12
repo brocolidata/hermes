@@ -1,6 +1,7 @@
 from itertools import product
 import omegaconf
 from hermes import connectors, utils, logging_utils
+from hermes.destinations import variables
 from hermes import exceptions as hermes_exceptions
 
 logger = logging_utils.get_logger()
@@ -22,6 +23,7 @@ class Pipeline:
         self.destinations_names = pipeline.destinations
         self.sources_connectors = self._get_sources_connectors()
         self.destinations_connectors = self._get_destinations_connectors()
+        self._destination_variables_cache = omegaconf.OmegaConf.create({})
         self.successes = []
         self.errors = []
 
@@ -131,6 +133,29 @@ class Pipeline:
                 logger.info(f"Successfully processed {source_connector.name} raw data")
         return output
 
+    def _process_destination_variables(self, source_connector, source_table_name):
+        try:
+            destination_variables = source_connector._kwargs_destination_variables_map[
+                source_table_name
+            ]
+            source_connector_is_using_destination_variables = any(
+                destination_variables.values()
+            )
+            if source_connector_is_using_destination_variables:
+                dc_destination_variables = (
+                    variables.process_destination_variable_kwargs(
+                        ls_destination_variables_str=list(
+                            destination_variables.values()
+                        ),
+                        table_name=source_table_name,
+                        pipeline_cache=self._destination_variables_cache,
+                    )
+                )
+                self._destination_variables_cache.update(dc_destination_variables)
+
+        except Exception as e:
+            ...
+
     def _process_extract_and_load(
         self, source_table_name: str, source_connector: str, destination_connector: str
     ):
@@ -149,12 +174,26 @@ class Pipeline:
             None
         """
 
+        # Process Destination variables if exists
+        try:
+            self._process_destination_variables(source_connector, source_table_name)
+        except (hermes_exceptions.DestinationVariableError, hermes_exceptions.ConfigLoadError) as e:
+            self._collect_errors(
+                source_name=source_connector.name,
+                source_table_name=source_table_name,
+                destination_name=destination_connector.name,
+                error=e,
+            )
+            return None
+
         # Extract data from source
         try:
             logger.info(
                 f"Extracting raw data for source:{source_connector.name} table:{source_table_name}.."
             )
-            source_extract = source_connector.extract(source_table_name)
+            source_extract = source_connector.extract(
+                source_table_name, self._destination_variables_cache
+            )
             logger.info(
                 f"Successfully extracted raw data from {source_connector.name} table:{source_table_name}."
             )

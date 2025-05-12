@@ -111,7 +111,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/3e/38/7859ff46355f76f8d
 
 [[package]]
 name = "athena-iceberg-destination"
-version = "0.2.2"
+version = "0.1.0"
 source = { editable = "plugins/destinations/athena_iceberg" }
 dependencies = [
     { name = "hermes" },
@@ -302,7 +302,7 @@ wheels = [
 
 [[package]]
 name = "custom-source"
-version = "0.2.2"
+version = "0.1.0"
 source = { editable = "plugins/sources/custom" }
 dependencies = [
     { name = "hermes" },
@@ -361,7 +361,7 @@ wheels = [
 
 [[package]]
 name = "generic-object-storage-destination"
-version = "0.2.2"
+version = "0.1.0"
 source = { editable = "plugins/destinations/generic_object_storage" }
 dependencies = [
     { name = "fsspec" },
@@ -376,14 +376,11 @@ requires-dist = [
 
 [[package]]
 name = "hermes"
-version = "0.2.2"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
-    { name = "athena-iceberg-destination" },
-    { name = "custom-source" },
     { name = "jsonschema" },
     { name = "omegaconf" },
-    { name = "s3-destination" },
 ]
 
 [package.optional-dependencies]
@@ -414,9 +411,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "athena-iceberg-destination", editable = "plugins/destinations/athena_iceberg" },
     { name = "athena-iceberg-destination", marker = "extra == 'athena-iceberg-destination'", editable = "plugins/destinations/athena_iceberg" },
-    { name = "custom-source", editable = "plugins/sources/custom" },
     { name = "custom-source", marker = "extra == 'custom-source'", editable = "plugins/sources/custom" },
     { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "jsonschema", specifier = ">=4.23.0" },
@@ -424,7 +419,6 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'core'", specifier = ">=2.2.3" },
     { name = "pyarrow", marker = "extra == 'core'", specifier = ">=19.0.1" },
     { name = "requests", marker = "extra == 'core'", specifier = ">=2.32.3" },
-    { name = "s3-destination", editable = "plugins/destinations/s3" },
     { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
 ]
 provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "core"]
@@ -950,7 +944,7 @@ wheels = [
 
 [[package]]
 name = "s3-destination"
-version = "0.2.2"
+version = "0.1.0"
 source = { editable = "plugins/destinations/s3" }
 dependencies = [
     { name = "generic-object-storage-destination" },

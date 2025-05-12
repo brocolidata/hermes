@@ -26,6 +26,7 @@ jobs:
         run: >
           uv export 
           --all-extras 
+          --no extra ingestion_core
           --no-dev 
           --no-editable 
           --format requirements-txt 

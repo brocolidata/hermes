@@ -44,7 +44,7 @@ jobs:
 
       - name: Zip Lambda Layer
         working-directory: src/lambda_layer
-        run: zip -r lambda_layer.zip python
+        run: zip -q -r lambda_layer.zip python
 
       - name: Upload Lambda Layer as GitHub Artifact
         uses: actions/upload-artifact@v4

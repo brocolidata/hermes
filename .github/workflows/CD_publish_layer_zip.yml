@@ -21,6 +21,13 @@ jobs:
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v6
 
+      - name: Install project dependencies
+        working-directory: src
+        run: >
+          uv sync 
+          --all-extras 
+          --all-groups
+
       - name: Export Requirements
         working-directory: src
         run: >

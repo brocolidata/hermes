@@ -8,7 +8,6 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "jsonschema>=4.23.0",
     "omegaconf>=2.3.0",
 ]
 [tool.uv.sources]

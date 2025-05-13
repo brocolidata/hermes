@@ -61,3 +61,4 @@ jobs:
           path: src/lambda_layer/lambda_layer.zip
           overwrite: true
           if-no-files-found: error
+          compression-level: 0

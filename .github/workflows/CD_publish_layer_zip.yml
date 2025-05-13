@@ -50,15 +50,12 @@ jobs:
           --target=lambda_layer/python 
           -r lambda_layer_requirements.txt
 
-      - name: Zip Lambda Layer
-        working-directory: src/lambda_layer
-        run: zip -q -r lambda_layer.zip python
-
       - name: Upload Lambda Layer as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
           name: hermes-zip-lambda-layer
-          path: src/lambda_layer/lambda_layer.zip
+          path: src/lambda_layer/python
           overwrite: true
           if-no-files-found: error
           compression-level: 0
+          include-hidden-files: true

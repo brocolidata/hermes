@@ -50,17 +50,6 @@ jobs:
           --target=lambda_layer/python 
           -r lambda_layer_requirements.txt
 
-      - name: Copy Local Plugins to Layer
-        working-directory: src
-        run: |
-          mkdir -p lambda_layer/python/hermes/plugins/sources
-          cp -r ${{ github.workspace }}/src/plugins/sources/custom lambda_layer/python/hermes/plugins/sources/
-          mkdir -p lambda_layer/python/hermes/plugins/destinations
-          cp -r ${{ github.workspace }}/src/plugins/destinations/athena_iceberg lambda_layer/python/hermes/plugins/destinations/
-          cp -r ${{ github.workspace }}/src/plugins/destinations/s3 lambda_layer/python/hermes/plugins/destinations/
-          cp -r ${{ github.workspace }}/src/plugins/destinations/generic_object_storage lambda_layer/python/hermes/plugins/destinations/
-
-
       - name: Zip Lambda Layer
         working-directory: src/lambda_layer
         run: zip -q -r lambda_layer.zip python

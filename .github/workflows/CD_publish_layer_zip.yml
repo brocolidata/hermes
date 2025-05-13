@@ -57,5 +57,4 @@ jobs:
           path: src/lambda_layer/python
           overwrite: true
           if-no-files-found: error
-          compression-level: 0
           include-hidden-files: true

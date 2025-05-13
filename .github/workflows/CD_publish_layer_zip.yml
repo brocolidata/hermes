@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python
-          path: src/lambda_layer/python
+          path: src/lambda_layer/
           overwrite: true
           if-no-files-found: error
           include-hidden-files: true

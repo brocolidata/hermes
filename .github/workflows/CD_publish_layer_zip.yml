@@ -53,7 +53,7 @@ jobs:
       - name: Upload Lambda Layer as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hermes-zip-lambda-layer
+          name: python
           path: src/lambda_layer/python
           overwrite: true
           if-no-files-found: error

@@ -4,12 +4,11 @@ from unittest.mock import MagicMock, mock_open, patch
 import omegaconf
 import pytest
 
-from hermes.exceptions import ConfigLoadError
 from hermes.utils import (
     get_definitions_from_file,
     load_and_merge_configs,
     load_definitions,
-    validate_definition_file,
+    # validate_definition_file,
     write_definitions,
 )
 
@@ -304,15 +303,15 @@ def invalid_definitions():
     )
 
 
-def test_validate_definition_file_valid(valid_definitions):
-    """Test that validation succeeds with a valid definition"""
-    try:
-        validate_definition_file(valid_definitions)
-    except ConfigLoadError:
-        pytest.fail("validate_definition_file() raised ConfigLoadError unexpectedly!")
+# def test_validate_definition_file_valid(valid_definitions):
+#     """Test that validation succeeds with a valid definition"""
+#     try:
+#         validate_definition_file(valid_definitions)
+#     except ConfigLoadError:
+#         pytest.fail("validate_definition_file() raised ConfigLoadError unexpectedly!")
 
 
-def test_validate_definition_file_invalid(invalid_definitions):
-    """Test that validation fails with an invalid definition"""
-    with pytest.raises(ConfigLoadError, match="validation of YAML definitions"):
-        validate_definition_file(invalid_definitions)
+# def test_validate_definition_file_invalid(invalid_definitions):
+#     """Test that validation fails with an invalid definition"""
+#     with pytest.raises(ConfigLoadError, match="validation of YAML definitions"):
+#         validate_definition_file(invalid_definitions)

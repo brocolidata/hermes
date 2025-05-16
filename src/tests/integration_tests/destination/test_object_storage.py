@@ -14,8 +14,8 @@ SOURCE_TABLE_NAME = "dirham_change_rates"
 def set_config_for_object_storage(monkeypatch, test_folder):
     """Fixture to set environment variables for tests."""
     monkeypatch.setenv(
-        "HERMES_CONFIG_FOLDER",
-        f"{test_folder}/assets/config/test_object_storage",
+        "HERMES_ARTIFACTS_FOLDER",
+        f"{test_folder}/assets/artifacts/object_storage",
     )
     yield
 

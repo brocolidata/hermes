@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "hermes",
     "generic_object_storage_destination",

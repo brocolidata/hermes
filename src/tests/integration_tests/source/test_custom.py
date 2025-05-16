@@ -12,8 +12,8 @@ TEST_PIPELINE_NAME = "sync_float_rates"
 def set_config_for_custom_source(monkeypatch, test_folder):
     """Fixture to set environment variables for tests."""
     monkeypatch.setenv(
-        "HERMES_CONFIG_FOLDER",
-        f"{test_folder}/assets/config/test_custom",
+        "HERMES_ARTIFACTS_FOLDER",
+        f"{test_folder}/assets/artifacts/custom",
     )
     yield
 

@@ -45,6 +45,7 @@ def test_load_data(mock_athena_to_iceberg, test_destination_config, test_datafra
         table="test_table",
         table_location="s3://a-bucket/table-location/test_source/test_table/",
         temp_path="s3://a-bucket/temp-path/test_source/test_table/",
+        workgroup="primary",
     )
 
 

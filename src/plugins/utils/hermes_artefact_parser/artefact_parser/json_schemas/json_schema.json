@@ -45,18 +45,14 @@
         "ObjectStorageDestination": {
             "type": "object",
             "properties": {
-                "service": {
-                    "type": "string"
-                },
                 "format": {
-                    "type": "string"
+                    "type":"string"
                 },
                 "bucket": {
-                    "type": "string"
+                    "type":"string"
                 }
             },
             "required": [
-                "service",
                 "format",
                 "bucket"
             ]

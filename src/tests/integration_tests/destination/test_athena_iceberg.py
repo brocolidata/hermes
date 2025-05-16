@@ -15,15 +15,12 @@ def set_config_for_athena_iceberg(monkeypatch, test_folder):
     """Fixture to set environment variables for tests."""
 
     monkeypatch.setenv(
-        # "HERMES_CONFIG_FOLDER", "tests/assets/config/test_athena_iceberg"
-        "HERMES_CONFIG_FOLDER",
-        f"{test_folder}/assets/config/test_athena_iceberg",
+        "HERMES_ARTIFACTS_FOLDER", f"{test_folder}/assets/artifacts/athena_iceberg"
     )
     yield
 
 
 def test_athena_iceberg(
-    # set_hermes_config_folder,
     set_config_for_athena_iceberg,
     set_aws_env_vars,
     mock_athena_to_iceberg,
@@ -67,7 +64,6 @@ def test_athena_iceberg(
 
 
 def test_athena_iceberg_exception(
-    # set_hermes_config_folder,
     set_config_for_athena_iceberg,
     set_aws_env_vars,
     mock_athena_to_iceberg,

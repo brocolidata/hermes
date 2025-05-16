@@ -15,6 +15,7 @@ custom_source = { path = "./plugins/sources/custom", editable = true}
 athena_iceberg_destination = { path = "./plugins/destinations/athena_iceberg", editable = true }
 s3_destination = { path = "./plugins/destinations/s3", editable = true }
 generic_object_storage_destination = { path = "./plugins/destinations/generic_object_storage", editable = true}
+hermes_artefact_parser = { path = "./plugins/utils/hermes_artefact_parser", editable = true}
 
 [project.optional-dependencies]
 custom_source = [
@@ -34,6 +35,10 @@ ingestion_core = [
     "pandas>=2.2.3",
     "pyarrow>=19.0.1",
     "requests>=2.32.3",
+]
+
+artefact_parser = [
+    "hermes_artefact_parser"
 ]
 
 [build-system]

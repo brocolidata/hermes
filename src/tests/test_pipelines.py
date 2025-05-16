@@ -36,6 +36,14 @@ def set_aws_env_vars(monkeypatch):
 
 
 @pytest.fixture
+def patch_config(monkeypatch, test_folder):
+    """Fixture to set environment variables for tests."""
+
+    monkeypatch.setenv("HERMES_ARTIFACTS_FOLDER", f"{test_folder}/assets/artifacts")
+    yield
+
+
+@pytest.fixture
 def mock_athena_to_iceberg():
     """Fixture to mock awswrangler.athena.to_iceberg."""
     with patch("awswrangler.athena.to_iceberg") as mock_to_iceberg:
@@ -44,6 +52,7 @@ def mock_athena_to_iceberg():
 
 @pytest.mark.parametrize("pipeline_name", ["sync_float_rates"])
 def test_multi_destination_pipelines(
+    patch_config,
     set_aws_env_vars,
     mock_fsspec_open,
     mock_athena_to_iceberg,

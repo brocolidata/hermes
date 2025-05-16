@@ -177,7 +177,10 @@ class Pipeline:
         # Process Destination variables if exists
         try:
             self._process_destination_variables(source_connector, source_table_name)
-        except (hermes_exceptions.DestinationVariableError, hermes_exceptions.ConfigLoadError) as e:
+        except (
+            hermes_exceptions.DestinationVariableError,
+            hermes_exceptions.ConfigLoadError,
+        ) as e:
             self._collect_errors(
                 source_name=source_connector.name,
                 source_table_name=source_table_name,
@@ -280,7 +283,6 @@ class Pipeline:
                 )
 
 
-@utils.setup_project
 def get_pipeline(pipeline_name: str) -> Pipeline:
     """Get pipeline object.
 

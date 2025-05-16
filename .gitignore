@@ -3,8 +3,6 @@
 __pycache__/
 .pytest_cache
 
-src/tests/assets/artifacts/**
-
 src/lambda_layer
 src/lambda_layer.zip
 src/lambda_layer_requirements.txt

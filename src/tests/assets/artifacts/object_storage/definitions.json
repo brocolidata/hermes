@@ -1,0 +1,59 @@
+{
+  "sources": [
+    {
+      "name": "float_rates",
+      "description": "An API with float rates data\n",
+      "type": "custom",
+      "config": {
+        "extractor": "FloatRatesSourceExtractor",
+        "module_path": "change_rates.py",
+        "kwargs": {
+          "endpoint": "https://www.floatrates.com/daily/mad.json"
+        },
+        "tables": [
+          {
+            "name": "dirham_change_rates",
+            "data_key": "float_rates",
+            "kwargs": {
+              "endpoint": "https://www.floatrates.com/daily/mad.json"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "name": "landing_zone",
+      "description": "A S3 bucket used for landing raw data\n",
+      "type": "s3",
+      "config": {
+        "format": "json",
+        "bucket": "a-bucket",
+        "partitioning": [
+          {
+            "name": "date",
+            "type": "datetime"
+          }
+        ]
+      }
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "sync_float_rates",
+      "sources": [
+        {
+          "name": "float_rates",
+          "tables": [
+            "dirham_change_rates"
+          ]
+        }
+      ],
+      "destinations": [
+        "landing_zone"
+      ],
+      "schedule": "0 20 * * 1-5"
+    }
+  ]
+}

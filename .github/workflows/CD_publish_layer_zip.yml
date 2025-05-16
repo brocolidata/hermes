@@ -34,6 +34,7 @@ jobs:
           uv export 
           --extra custom_source
           --extra s3_destination
+          --extra s3_destination_core
           --extra athena_iceberg_destination
           --no-dev 
           --no-editable

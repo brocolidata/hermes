@@ -1,9 +1,3 @@
-# def test_parse_project():
-#     CONFIG_PATH = pathlib.Path("test_config")
-#     ARTEFACT_PATH = pathlib.Path("test_definitions")
-#     parse_project(CONFIG_PATH, ARTEFACT_PATH)
-
-
 import json
 import pathlib
 

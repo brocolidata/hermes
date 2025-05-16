@@ -41,8 +41,6 @@ class DestinationError(HermesError):
         return f"{self.connector_name}: {self.error_message}"
 
 
-
-
 class PipelineError(HermesError):
     """Raised when there is a general pipeline execution failure."""
 
@@ -62,6 +60,7 @@ class ConfigLoadError(HermesError):
         """
         super().__init__(self.message)
 
+
 class DestinationVariableError(HermesError):
     """Raised when there is an issue related to destination variables."""
 
@@ -73,4 +72,3 @@ class DestinationVariableError(HermesError):
 
     def get_message(self):
         return f"{self.connector_name}: {self.error_message}"
-

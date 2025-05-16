@@ -10,12 +10,16 @@ requires-python = ">=3.12"
 dependencies = [
     "hermes",
     "generic_object_storage_destination",
-    "s3fs>=2025.2.0",
 ]
 
 [tool.uv.sources]
 # hermes = { path = "../../.." }
 generic_object_storage_destination = { path = "../generic_object_storage"}
+
+[dependency-groups]
+dev = [
+    "s3fs>=2025.2.0",
+]
 
 [project.entry-points."hermes_plugins.destinations"]
 s3 = "s3_destination.connector:S3Destination"

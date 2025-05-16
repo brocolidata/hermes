@@ -422,6 +422,9 @@ artefact-parser = [
 athena-iceberg-destination = [
     { name = "athena-iceberg-destination" },
 ]
+athena-iceberg-destination-core = [
+    { name = "awswrangler" },
+]
 custom-source = [
     { name = "custom-source" },
 ]
@@ -434,11 +437,11 @@ s3-destination = [
     { name = "generic-object-storage-destination" },
     { name = "s3-destination" },
 ]
+s3-destination-core = [
+    { name = "s3fs" },
+]
 
 [package.dev-dependencies]
-athena-iceberg-destination-dev = [
-    { name = "awswrangler" },
-]
 dev = [
     { name = "moto" },
     { name = "pytest" },
@@ -447,6 +450,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "athena-iceberg-destination", marker = "extra == 'athena-iceberg-destination'", editable = "plugins/destinations/athena_iceberg" },
+    { name = "awswrangler", marker = "extra == 'athena-iceberg-destination-core'", specifier = ">=3.10.1" },
     { name = "custom-source", marker = "extra == 'custom-source'", editable = "plugins/sources/custom" },
     { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "hermes-artefact-parser", marker = "extra == 'artefact-parser'", editable = "plugins/utils/hermes_artefact_parser" },
@@ -455,11 +459,11 @@ requires-dist = [
     { name = "pyarrow", marker = "extra == 'ingestion-core'", specifier = ">=19.0.1" },
     { name = "requests", marker = "extra == 'ingestion-core'", specifier = ">=2.32.3" },
     { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
+    { name = "s3fs", marker = "extra == 's3-destination-core'", specifier = ">=2025.2.0" },
 ]
-provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "ingestion-core", "artefact-parser"]
+provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "ingestion-core", "s3-destination-core", "athena-iceberg-destination-core", "artefact-parser"]
 
 [package.metadata.requires-dev]
-athena-iceberg-destination-dev = [{ name = "awswrangler", specifier = ">=3.10.1" }]
 dev = [
     { name = "moto", specifier = ">=5.1.1" },
     { name = "pytest", specifier = ">=8.3.4" },
@@ -1076,15 +1080,16 @@ source = { editable = "plugins/destinations/s3" }
 dependencies = [
     { name = "generic-object-storage-destination" },
     { name = "hermes" },
-    { name = "s3fs" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "generic-object-storage-destination", virtual = "plugins/destinations/generic_object_storage" },
     { name = "hermes" },
-    { name = "s3fs", specifier = ">=2025.2.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "s3fs", specifier = ">=2025.2.0" }]
 
 [[package]]
 name = "s3fs"

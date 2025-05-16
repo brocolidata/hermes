@@ -21,4 +21,4 @@ package = true
 hermes-artefact-parser = "artefact_parser.cli:app"
 
 [tool.uv.sources]
-hermes = { path = "/hermes", editable = true}
+hermes = { path = "../../..", editable = true}

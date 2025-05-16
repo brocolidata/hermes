@@ -5,7 +5,7 @@ description = "Hermes artefact parser"
 authors = [
     { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "hermes",
     "jsonschema>=4.23.0",

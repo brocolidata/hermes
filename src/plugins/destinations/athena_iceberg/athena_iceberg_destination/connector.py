@@ -2,7 +2,10 @@ import awswrangler as wr
 import omegaconf
 import pandas as pd
 
-from athena_iceberg_destination.exceptions import AthenaIcebergDestinationError, AthenaIcebergDestinationVariableError
+from athena_iceberg_destination.exceptions import (
+    AthenaIcebergDestinationError,
+    AthenaIcebergDestinationVariableError,
+)
 from hermes.destinations.utils import BaseDestination
 from hermes.logging_utils import get_logger
 from hermes.settings import ATHENA_ICEBERG_ANTE_PROCESS_MSG
@@ -25,6 +28,7 @@ class AthenaIcebergDestination(BaseDestination):
         self.temp_path = self.config.temp_path
         self.glue_database = self.config.glue_database
         self.table_location = self.config.table_location
+        self.workgroup = self.config.get("workgroup", "primary")
 
     def _get_full_table_location(self, source_name: str, source_table_name: str) -> str:
         """Return full table path
@@ -81,6 +85,7 @@ class AthenaIcebergDestination(BaseDestination):
                 table=source_table_name,
                 table_location=table_location,
                 temp_path=temp_path,
+                workgroup=self.workgroup,
             )
         except Exception as e:
             raise AthenaIcebergDestinationError(
@@ -92,9 +97,13 @@ class AthenaIcebergDestination(BaseDestination):
                 error=str(e),
             )
 
-    def get_destination_variable(self, variable_name, dc_variable: dict, table_name: str) -> dict:
+    def get_destination_variable(
+        self, variable_name, dc_variable: dict, table_name: str
+    ) -> dict:
         try:
-            if wr.catalog.does_table_exist(database=self.glue_database, table=table_name):
+            if wr.catalog.does_table_exist(
+                database=self.glue_database, table=table_name
+            ):
                 query = dc_variable.query.format(this=table_name)
                 df = wr.athena.read_sql_query(
                     sql=query,

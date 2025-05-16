@@ -32,9 +32,9 @@ jobs:
         working-directory: src
         run: >
           uv export 
-          --all-extras 
-          --no-extra ingestion_core
-          --no-extra artefact_parser
+          --extra custom_source
+          --extra s3_destination_core
+          --extra athena_iceberg_destination
           --no-dev 
           --no-editable
           --format requirements-txt 

@@ -37,6 +37,14 @@ ingestion_core = [
     "requests>=2.32.3",
 ]
 
+s3_destination_core = [
+    "s3fs>=2025.2.0",
+]
+
+athena_iceberg_destination_core = [
+    "awswrangler>=3.10.1",
+]
+
 artefact_parser = [
     "hermes_artefact_parser"
 ]
@@ -50,7 +58,4 @@ dev = [
     "moto>=5.1.1",
     "pytest>=8.3.4",
     
-]
-athena_iceberg_destination_dev = [
-    "awswrangler>=3.10.1",
 ]

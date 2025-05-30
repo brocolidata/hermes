@@ -1,4 +1,4 @@
-![Hermes banner](/hermes_banner.jpg)
+![Hermes banner](/hermes_banner.svg)
 
 A simple Serverless-compatible data Extract-Load framework.
 

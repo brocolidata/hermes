@@ -233,7 +233,6 @@ class Pipeline:
                     "source_name": source_connector.name,
                     "source_table_name": source_table_name,
                     "destination_name": destination_connector.name,
-                    "destination_type": destination_connector.connector_type
                 }
             )
         except hermes_exceptions.DestinationError as e:

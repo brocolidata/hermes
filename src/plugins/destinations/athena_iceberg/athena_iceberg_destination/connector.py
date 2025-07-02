@@ -24,7 +24,6 @@ class AthenaIcebergDestination(BaseDestination):
         """
         self.config = destination_config.config
         self.name = destination_config.name
-        self.connector_type = "athena_iceberg"
         self.data_stage = "processed"
         self.temp_path = self.config.temp_path
         self.glue_database = self.config.glue_database

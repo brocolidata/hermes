@@ -1,7 +1,14 @@
 ## Development guidelines
 
 ### Setup Environment
-1. Install dependencies by running
+1. Create virtual environment by running
+```
+uv venv
+```
+
+2. Activate virtual environment by selecting the right python executable in VS Code (`./.venv/bin/python`)
+
+3. Install dependencies by running
 ```
 uv sync --all-extras --all-groups
 ```

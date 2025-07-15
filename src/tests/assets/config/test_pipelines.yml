@@ -26,6 +26,7 @@ destinations:
     type: athena_iceberg
     config:
       glue_database: raw_glue_database
+      workgroup: hermes_workgroup
       table_location: s3://a-bucket/table-location
       temp_path: s3://a-bucket/temp-path
       

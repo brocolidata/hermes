@@ -12,10 +12,6 @@ dependencies = [
     "generic_object_storage_destination",
 ]
 
-[tool.uv.sources]
-# hermes = { path = "../../.." }
-generic_object_storage_destination = { path = "../generic_object_storage"}
-
 
 [project.entry-points."hermes_plugins.destinations"]
 local_storage = "local_storage_destination.connector:LocalStorageDestination"

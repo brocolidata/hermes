@@ -355,6 +355,10 @@ ingestion-core = [
     { name = "pyarrow" },
     { name = "requests" },
 ]
+local-storage-destination = [
+    { name = "generic-object-storage-destination" },
+    { name = "local-storage-destination" },
+]
 s3-destination = [
     { name = "generic-object-storage-destination" },
     { name = "s3-destination" },
@@ -374,8 +378,10 @@ requires-dist = [
     { name = "athena-iceberg-destination", marker = "extra == 'athena-iceberg-destination'", editable = "plugins/destinations/athena_iceberg" },
     { name = "awswrangler", marker = "extra == 'athena-iceberg-destination-core'", specifier = ">=3.10.1" },
     { name = "custom-source", marker = "extra == 'custom-source'", editable = "plugins/sources/custom" },
+    { name = "generic-object-storage-destination", marker = "extra == 'local-storage-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "hermes-artefact-parser", marker = "extra == 'artefact-parser'", editable = "plugins/utils/hermes_artefact_parser" },
+    { name = "local-storage-destination", marker = "extra == 'local-storage-destination'", editable = "plugins/destinations/local_storage" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pandas", marker = "extra == 'ingestion-core'", specifier = ">=2.2.3" },
     { name = "pyarrow", marker = "extra == 'ingestion-core'", specifier = ">=19.0.1" },
@@ -383,7 +389,7 @@ requires-dist = [
     { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
     { name = "s3fs", marker = "extra == 's3-destination-core'", specifier = ">=2025.2.0" },
 ]
-provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "ingestion-core", "s3-destination-core", "athena-iceberg-destination-core", "artefact-parser"]
+provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "local-storage-destination", "ingestion-core", "s3-destination-core", "athena-iceberg-destination-core", "artefact-parser"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -476,6 +482,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/bf/ce/46fbd9c8119cfc3581ee5643ea49464d168028cfb5caff5fc0596d0cf914/jsonschema_specifications-2025.4.1.tar.gz", hash = "sha256:630159c9f4dbea161a6a2205c3011cc4f18ff381b189fff48bb39b9bf26ae608", size = 15513 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/01/0e/b27cdbaccf30b890c40ed1da9fd4a3593a5cf94dae54fb34f8a4b74fcd3f/jsonschema_specifications-2025.4.1-py3-none-any.whl", hash = "sha256:4653bffbd6584f7de83a67e0d620ef16900b390ddc7939d56684d6c81e33f1af", size = 18437 },
+]
+
+[[package]]
+name = "local-storage-destination"
+version = "0.1.0"
+source = { editable = "plugins/destinations/local_storage" }
+dependencies = [
+    { name = "generic-object-storage-destination" },
+    { name = "hermes" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "generic-object-storage-destination", virtual = "plugins/destinations/generic_object_storage" },
+    { name = "hermes" },
 ]
 
 [[package]]

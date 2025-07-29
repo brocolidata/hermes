@@ -13,6 +13,13 @@ uv venv
 uv sync --all-extras --all-groups
 ```
 
+### Create a plugin
+1. `cd` into the plugin subfolder depending on the type of plugin : 
+- `plugins/sources` : source connectors
+- `plugins/destinations` : destination connectors
+- `plugins/utils` : other plugins
+2. 
+
 
 ### Create Lambda layer
 1. Create the layer folder

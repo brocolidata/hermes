@@ -1,21 +1,17 @@
 [project]
-name = "s3_destination"
+name = "local_storage_destination"
 version = "0.1.0"
-description = "Hermes s3 destination connector"
+description = "Hermes local storage destination connector"
 readme = "README.md"
 authors = [
     { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
 ]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12"
 dependencies = [
     "hermes",
     "generic_object_storage_destination",
 ]
 
-[dependency-groups]
-dev = [
-    "s3fs>=2025.2.0",
-]
 
 [project.entry-points."hermes_plugins.destinations"]
-s3 = "s3_destination.connector:S3Destination"
+local_storage = "local_storage_destination.connector:LocalStorageDestination"

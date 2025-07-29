@@ -44,10 +44,8 @@ class ObjectStorageDestination(BaseDestination):
         Returns:
             str: Full object path
         """
-        # TODO: Define a convention for the landing zone path (include an ID, timestamp)
-        # path = f"{self.prefix}://{self.bucket}/{source_name}/{source_table_name}.{self.format}"
         timestamp = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
-        path = f"{self.prefix}://{self.bucket}/{source_name}/{source_table_name}/{source_table_name}_{timestamp}.{self.format}"
+        path = f"{self.prefix}/{self.bucket}/{source_name}/{source_table_name}/{source_table_name}_{timestamp}.{self.format}"
         return path
 
     def load(self, source_name: str, source_table_name: str, data):

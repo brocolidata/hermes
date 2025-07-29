@@ -10,7 +10,7 @@ class S3Destination(ObjectStorageDestination):
             destination_config (omegaconf.dictconfig.DictConfig): configuration for the destination
         """
         super().__init__(destination_config)  # Call parent constructor
-        self._prefix = "s3"
+        self._prefix = "s3:/"
 
     @property
     def prefix(self):

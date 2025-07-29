@@ -95,13 +95,18 @@ The variable's value is injected before executing the extractor, so you can use 
 
 ### ObjectStorageDestination 🪣  
 To use this destination:  
-- Set the type of the [Destination configuration](#destination-configuration) to `object_storage`  
-- Define the following keys under `config:`  
+1. Set the type of the [Destination configuration](#destination-configuration) to either: 
+- `s3`: to use AWS S3 as a destination
+- `local_storage`: to use the local storage as destination
+
+2. Define the following keys under `config:`  
 
 | Configuration Key  | Description                                              | Required |
 |--------------------|----------------------------------------------------------|----------|
 | `format`         | File format used to load data (`json`, `parquet`, etc.)    | yes      |
 | `bucket`         | Destination bucket name                                    | yes      |
+
+***For `local_storage` :** The `bucket` represents the folder where you want to load the data*.
 
 ### AthenaIcebergDestination ❄️  
 To use this destination:  

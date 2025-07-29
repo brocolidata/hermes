@@ -5,7 +5,6 @@ import pathlib
 from hermes.exceptions import ConfigLoadError
 
 HERMES_DEFINITIONS_FILE = "definitions.json"
-GCS_PREFIX = "gs"
 
 
 class ConnectorsMetaTypes(str, enum.Enum):
@@ -14,8 +13,8 @@ class ConnectorsMetaTypes(str, enum.Enum):
 
 
 class ObjectStorageServicesPrefixes(str, enum.Enum):
-    gcs = "gs"
-    s3 = "s3"
+    gcs = "gs:/"
+    s3 = "s3:/"
 
 
 class NodeTypes(str, enum.Enum):

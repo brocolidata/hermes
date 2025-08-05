@@ -1,14 +1,15 @@
 import json
+import logging
 import pathlib
 
 import omegaconf
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
-from hermes import logging_utils, settings
+from hermes import settings
 from hermes.exceptions import ConfigLoadError
 
-logger = logging_utils.get_logger()
+logger = logging.getLogger()
 
 
 def load_and_merge_configs(user_config_path):
@@ -23,6 +24,7 @@ def load_and_merge_configs(user_config_path):
                 merged_config[key].extend(yaml_config[key])
 
     definitions = omegaconf.OmegaConf.to_container(merged_config, resolve=True)
+    logger.info("Definition files successfully loaded and merged")
     return definitions
 
 
@@ -37,6 +39,7 @@ def write_definitions(definitions, artefact_path):
         artifact_file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(artifact_file_path, "w") as f:
         json.dump(definitions, f, indent=2)
+    logger.info(f"Artifact successfully written to {artifact_file_path}")
 
 
 def get_json_schema(file_name="json_schema"):
@@ -50,10 +53,10 @@ def get_json_schema(file_name="json_schema"):
 
 
 def validate_definition_file(definitions):
-    # dc_definitions = omegaconf.OmegaConf.to_container(definitions, resolve=True)
     json_schema = get_json_schema()
     try:
         validate(definitions, json_schema)
+        logger.info("Configuration is valid")
     except ValidationError as e:
         raise ConfigLoadError(
             process_step="validation of YAML definitions",
@@ -78,8 +81,9 @@ def parse_project(user_config_path=None, artefact_path=None):
         _ = settings.get_artifacts_folder()
         _ = settings.get_custom_connectors_folder()
         config_is_valid = True
-
+        logger.info("Parsing successful !")
     except Exception as e:
+        logger.error(f"An error occurred during project parsing: {e}")
         raise e
     finally:
         return config_is_valid

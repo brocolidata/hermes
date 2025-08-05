@@ -1,6 +1,6 @@
 [project]
 name = "hermes_artefact_parser"
-version = "0.1.0"
+version = "0.1.1"
 description = "Hermes artefact parser"
 authors = [
     { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }

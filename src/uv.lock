@@ -347,11 +347,11 @@ athena-iceberg-destination = [
 athena-iceberg-destination-core = [
     { name = "awswrangler" },
 ]
+cli = [
+    { name = "hermes-cli" },
+]
 custom-source = [
     { name = "custom-source" },
-]
-hermes-cli = [
-    { name = "hermes-cli" },
 ]
 ingestion-core = [
     { name = "pandas" },
@@ -384,7 +384,7 @@ requires-dist = [
     { name = "generic-object-storage-destination", marker = "extra == 'local-storage-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "generic-object-storage-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/generic_object_storage" },
     { name = "hermes-artefact-parser", marker = "extra == 'artefact-parser'", editable = "plugins/utils/hermes_artefact_parser" },
-    { name = "hermes-cli", marker = "extra == 'hermes-cli'", editable = "plugins/utils/hermes_cli" },
+    { name = "hermes-cli", marker = "extra == 'cli'", editable = "plugins/utils/hermes_cli" },
     { name = "local-storage-destination", marker = "extra == 'local-storage-destination'", editable = "plugins/destinations/local_storage" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pandas", marker = "extra == 'ingestion-core'", specifier = ">=2.2.3" },
@@ -393,7 +393,7 @@ requires-dist = [
     { name = "s3-destination", marker = "extra == 's3-destination'", editable = "plugins/destinations/s3" },
     { name = "s3fs", marker = "extra == 's3-destination-core'", specifier = ">=2025.2.0" },
 ]
-provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "local-storage-destination", "ingestion-core", "s3-destination-core", "athena-iceberg-destination-core", "artefact-parser", "hermes-cli"]
+provides-extras = ["custom-source", "athena-iceberg-destination", "s3-destination", "local-storage-destination", "ingestion-core", "s3-destination-core", "athena-iceberg-destination-core", "artefact-parser", "cli"]
 
 [package.metadata.requires-dev]
 dev = [

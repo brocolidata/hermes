@@ -1,0 +1,204 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$defs": {
+        "CustomSource": {
+            "type": "object",
+            "properties": {
+                "extractor": {
+                    "type": "string"
+                },
+                "module_path": {
+                    "type": "string"
+                },
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "data_key": {
+                                "type": "string"
+                            },
+                            "kwargs": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "data_key",
+                            "kwargs"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "extractor",
+                "module_path",
+                "tables"
+            ]
+        },
+        "ObjectStorageDestination": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "type":"string"
+                },
+                "bucket": {
+                    "type":"string"
+                }
+            },
+            "required": [
+                "format",
+                "bucket"
+            ]
+        },
+        "AthenaIcebergDestination": {
+            "type": "object",
+            "properties": {
+                "glue_database": {
+                    "type": "string"
+                },
+                "table_location": {
+                    "type": "string"
+                },
+                "temp_path": {
+                    "type": "string"
+                },
+                "variables": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "glue_database",
+                "table_location",
+                "temp_path"
+            ]
+        }
+    },
+    "type": "object",
+    "properties": {
+        "sources": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/CustomSource"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "config"
+                ]
+            }
+        },
+        "destinations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/ObjectStorageDestination"
+                            },
+                            {
+                                "$ref": "#/$defs/AthenaIcebergDestination"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "config"
+                ]
+            }
+        },
+        "pipelines": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "sources": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "tables": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "tables"
+                            ]
+                        }
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "schedule": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "sources",
+                    "destinations"
+                ]
+            }
+        }
+    }
+}

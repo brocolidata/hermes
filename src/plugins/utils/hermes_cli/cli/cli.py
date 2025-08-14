@@ -165,7 +165,6 @@ def list_pipelines():
     """List available pipelines"""
     definitions = utils.get_definitions_from_file()
     pipelines = definitions.pipelines
-    print(f"Pipelines: {pipelines}")
 
     if not pipelines:
         console.print("[bold red]No pipelines found.[/bold red]")

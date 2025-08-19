@@ -13,7 +13,7 @@ from hermes.exceptions import ConfigLoadError
 logger = logging.getLogger()
 
 
-def get_hermes_connectors() -> list[str]:
+def get_installed_hermes_connectors() -> list[str]:
     """
     List all available Hermes connectors by querying entry points.
 
@@ -27,18 +27,29 @@ def get_hermes_connectors() -> list[str]:
 
         destination_entry_points = entry_points(group="hermes_plugins.destinations")
         connectors["destinations"] = list(destination_entry_points.names)
-        hermes_connectors = []
-        for connector_type in connectors.keys():
-            for connector in connectors[connector_type]:
-                connector_name = (
-                    f"{connector}_{connector_type[:-1]}"  # [:-1] to remove the last 's'
-                )
-                hermes_connectors.append(connector_name)
-        logging.info(f"Found {len(hermes_connectors)} Hermes connectors")
-        return hermes_connectors
+
+        logging.info(
+            f"Found {len(connectors['sources']) + len(connectors['destinations'])} Hermes connectors"
+        )
+        return connectors
 
     except Exception as e:
         logger.error(f"Error retrieving Hermes connectors: {e}")
+
+
+def get_available_connectors():
+    """
+    Get a list of all available Hermes connectors.
+
+    Returns:
+        list[str]: List of all available Hermes connectors.
+    """
+    plugins_path = pathlib.Path("plugins")
+    available_connectors = {"sources": [], "destinations": []}
+    subdirs = {
+        "sources": plugins_path / "sources",
+        "destinations": plugins_path / "destinations",
+    }
 
 
 def load_and_merge_configs(user_config_path):

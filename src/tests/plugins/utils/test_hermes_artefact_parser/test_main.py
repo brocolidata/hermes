@@ -5,7 +5,7 @@ import omegaconf
 import pytest
 
 from hermes.exceptions import ConfigLoadError
-from plugins.utils.hermes_artefact_parser.artefact_parser.main import (
+from plugins.utils.hermes_cli.cli.main import (
     load_and_merge_configs,
     parse_project,
     validate_definition_file,

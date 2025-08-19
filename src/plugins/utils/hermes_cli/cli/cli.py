@@ -3,6 +3,7 @@ import os
 import platform
 import subprocess
 import sys
+import tomllib
 from importlib.metadata import version
 from pathlib import Path
 from typing import Optional
@@ -10,19 +11,30 @@ from typing import Optional
 import questionary
 import typer
 from cli.main import (
-    get_hermes_connectors,
+    get_installed_hermes_connectors,
     parse_project,
 )
 from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from typing_extensions import Annotated
 
 from hermes import utils
 from hermes.pipeline import get_pipeline
 
-app = typer.Typer()
+app = typer.Typer(
+    name="hermes",
+    help="Hermes Command Line Interface",
+    add_completion=False,
+    rich_markup_mode="rich",
+)
 
-pipeline_app = typer.Typer()
+pipeline_app = typer.Typer(
+    name="pipeline",
+    help="Pipeline management commands - list and run your data pipelines",
+    rich_markup_mode="rich",
+)
 console = Console()
 
 app.add_typer(pipeline_app, name="pipeline")
@@ -47,28 +59,117 @@ def setup_logging(level_str: str):
     root_logger.addHandler(handler)
 
 
-@app.command()
-def install_connector():
-    """Install a connector"""
-    connectors = get_hermes_connectors()
+def find_pyproject_toml() -> str:
+    """Locate pyproject.toml by traversing up from the current working directory."""
+    current_dir = os.getcwd()
+    while current_dir != os.path.dirname(current_dir):  # Stop at root
+        pyproject_path = os.path.join(current_dir, "pyproject.toml")
+        if os.path.isfile(pyproject_path):
+            return pyproject_path
+        current_dir = os.path.dirname(current_dir)
+    raise FileNotFoundError("pyproject.toml not found")
 
+
+def get_available_connectors():
+    """Extract connectors ending with 'source' or 'destination' from tool.uv.sources."""
+    pyproject_path = find_pyproject_toml()
+    with open(pyproject_path, "rb") as f:
+        data = tomllib.load(f)
+    sources = data.get("tool", {}).get("uv", {}).get("sources", {})
+    hermes_connectors = [
+        key for key in sources if key.endswith(("_source", "_destination"))
+    ]
+    # Exclude connectors that ends with '_source' or '_destination'
+    excluded_connectors = ["generic_object_storage_destination"]
+    connectors = [
+        connector
+        for connector in hermes_connectors
+        if connector not in excluded_connectors
+    ]
+    return connectors
+
+
+def get_hermes_version(value: bool):
+    """Show version information and exit"""
+    if value:
+        console.print(
+            f"[bold blue]Hermes[/bold blue] version : [green]{version('hermes')}[/green]"
+        )
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--version",
+            "-v",
+            callback=get_hermes_version,
+            is_eager=True,
+            help="Show Hermes version",
+        ),
+    ] = None,
+):
+    """
+    Hermes Command Line Interface
+    """
+    return
+
+
+@app.command(name="install")
+def install_connector():
+    """
+    Install Hermes connectors
+
+    Select and install connectors for various data sources and destinations.
+    """
+
+    with console.status("[bold green]🔍 Scanning for available connectors..."):
+        connectors = get_available_connectors()
+        # sources = [
+        #     f"{source_connector}_source"
+        #     for source_connector in hermes_connectors["sources"]
+        # ]
+        # destinations = [
+        #     f"{destination_connector}_destination"
+        #     for destination_connector in hermes_connectors["destinations"]
+        # ]
+        # connectors = sources + destinations
     if not connectors:
-        typer.echo("No local connectors found")
+        console.print("[bold red]❌ No local connectors found[/bold red]")
         raise typer.Exit(code=1)
 
+    console.print(
+        f"\n✅ Found [bold green]{len(connectors)}[/bold green] available connectors"
+    )
+
     selected_connectors = questionary.checkbox(
-        "Select a specific Connector(s) to install:",
+        "🎯 Select connectors to install:",
         choices=connectors,
-        validate=lambda x: True if x else "Please select at least one item!",
+        validate=lambda x: True if x else "❌ Please select at least one connector!",
+        style=questionary.Style(
+            [
+                ("question", "bold"),
+                ("answer", "fg:#ff9d00 bold"),
+                ("pointer", "fg:#ff9d00 bold"),
+                ("highlighted", "fg:#ff9d00 bold"),
+                ("selected", "fg:#cc5454"),
+                ("separator", "fg:#cc5454"),
+                ("instruction", ""),
+                ("text", ""),
+                ("disabled", "fg:#858585 italic"),
+            ]
+        ),
     ).ask()
 
     # Handle user cancellation
     if selected_connectors is None:
-        typer.echo("Installation cancelled")
+        console.print("\n[yellow]🚫 Installation cancelled by user[/yellow]")
         raise typer.Exit(code=0)
 
     if not selected_connectors:
-        typer.echo("No connectors selected")
+        console.print("[bold red]❌ No connectors selected[/bold red]")
         raise typer.Exit(code=1)
 
     # Format connectors for installation
@@ -78,9 +179,14 @@ def install_connector():
     # Build installation URL
     connectors_install_url = f'uv pip install "git+https://github.com/brocolidata/hermes#subdirectory=src["{connectors_str}"]"'
     typer.echo(f"Command: {connectors_install_url}")
-    typer.echo("Installing connectors...")
-
     try:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Installing connectors...", total=None)
+
         result = subprocess.run(
             connectors_install_url,
             shell=True,
@@ -89,21 +195,25 @@ def install_connector():
             text=True,
         )
 
-        typer.echo(f"✅ Successfully installed connectors: {connectors_str}")
+        console.print(
+            f"\n✅ [bold green]Successfully installed connectors:[/bold green] {connectors_str}"
+        )
         if result.stdout:
-            typer.echo(f"Output: {result.stdout}")
+            console.print(
+                Panel(result.stdout, title="📄 Installation Output", style="dim")
+            )
 
     except subprocess.CalledProcessError as e:
-        typer.echo(f"❌ Error installing connectors: {e}")
+        console.print(f"\n❌ [bold red]Error installing connectors:[/bold red] {e}")
         if e.stderr:
-            typer.echo(f"Error details: {e.stderr}")
+            console.print(Panel(e.stderr, title="🚨 Error Details", style="red"))
         raise typer.Exit(code=1)
     except Exception as e:
-        typer.echo(f"❌ Unexpected error: {str(e)}")
+        console.print(f"\n❌ [bold red]Unexpected error:[/bold red] {str(e)}")
         raise typer.Exit(code=1)
 
 
-@app.command()
+@app.command(name="debug")
 def debug(
     logging_level: Annotated[
         Optional[str],
@@ -124,12 +234,16 @@ def debug(
     print(f"• Platform      : {platform.system()} {platform.release()}")
     print(f"• Working Dir   : {os.getcwd()}")
 
-    supported = get_hermes_connectors()
+    installed_connectors = get_installed_hermes_connectors()
 
-    if supported:
-        print("\n[SUPPORTED CONNECTORS]")
-        for connector in supported:
-            print(f"  - {connector}")
+    if installed_connectors:
+        print("\n[INSTALLED CONNECTORS]")
+        print("Sources:")
+        for source in installed_connectors["sources"]:
+            print(f"  - {source}")
+        print("Destinations:")
+        for destination in installed_connectors["destinations"]:
+            print(f"  - {destination}")
     else:
         print("No connectors installed.")
 
@@ -241,3 +355,30 @@ def artefact_validate(
     """
     # Configure logging for the validate command as well
     setup_logging(logging_level)
+
+
+@app.command(name="init")
+def init_command():
+    from hermes.settings import generate_config_file
+
+    """Initialize the Hermes CLI command"""
+    try:
+        generate_config_file()
+    except Exception as e:
+        console.print(f"[bold red]Error generating configuration file:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command(name="test")
+def test_get_config_file():
+    from hermes.settings import get_artifacts_folder, get_config_folder
+
+    """Test the get_config_file function"""
+    try:
+        config_folder = get_config_folder()
+        artefact_folder = get_artifacts_folder()
+        console.print(f"[bold green]Configuration folder:[/bold green] {config_folder}")
+        console.print(f"[bold green]Artifacts folder:[/bold green] {artefact_folder}")
+    except Exception as e:
+        console.print(f"[bold red]Error getting configuration folder:[/bold red] {e}")
+        raise typer.Exit(code=1)

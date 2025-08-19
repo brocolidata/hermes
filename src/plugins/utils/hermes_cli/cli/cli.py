@@ -14,6 +14,7 @@ from cli.main import (
     get_installed_hermes_connectors,
     parse_project,
 )
+from rich import print
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -22,6 +23,7 @@ from typing_extensions import Annotated
 
 from hermes import utils
 from hermes.pipeline import get_pipeline
+from hermes.settings import get_config_file_path
 
 app = typer.Typer(
     name="hermes",
@@ -246,6 +248,15 @@ def debug(
             print(f"  - {destination}")
     else:
         print("No connectors installed.")
+
+    config_file_path = get_config_file_path()
+    print("\n[CONFIGURATION FILE]")
+    if config_file_path:
+        print(
+            f"[bold green]• config.yml file Found[/bold green] in : {config_file_path}"
+        )
+    else:
+        print("[bold red]No configuration file found.[/bold red]")
 
 
 @app.command()

@@ -76,7 +76,7 @@ def test_write_definitions_creates_file(tmp_path):
     mock_json_dump.assert_called_once_with(definitions, mock_file(), indent=2)
 
 
-@patch("plugins.utils.hermes_artefact_parser.artefact_parser.main.get_json_schema")
+@patch("plugins.utils.hermes_cli.cli.main.get_json_schema")
 def test_validate_definition_file_valid(mock_get_schema, valid_definitions):
     mock_get_schema.return_value = {
         "type": "object",
@@ -93,7 +93,7 @@ def test_validate_definition_file_valid(mock_get_schema, valid_definitions):
         pytest.fail("Unexpected ConfigLoadError raised")
 
 
-@patch("plugins.utils.hermes_artefact_parser.artefact_parser.main.get_json_schema")
+@patch("plugins.utils.hermes_cli.cli.main.get_json_schema")
 def test_validate_definition_file_invalid(mock_get_schema, invalid_definitions):
     mock_get_schema.return_value = {
         "type": "object",
@@ -112,13 +112,9 @@ def test_validate_definition_file_invalid(mock_get_schema, invalid_definitions):
         validate_definition_file(invalid_definitions)
 
 
-@patch("plugins.utils.hermes_artefact_parser.artefact_parser.main.write_definitions")
-@patch(
-    "plugins.utils.hermes_artefact_parser.artefact_parser.main.validate_definition_file"
-)
-@patch(
-    "plugins.utils.hermes_artefact_parser.artefact_parser.main.load_and_merge_configs"
-)
+@patch("plugins.utils.hermes_cli.cli.main.write_definitions")
+@patch("plugins.utils.hermes_cli.cli.main.validate_definition_file")
+@patch("plugins.utils.hermes_cli.cli.main.load_and_merge_configs")
 @patch("hermes.settings")
 def test_parse_project_success(mock_settings, mock_load, mock_validate, mock_write):
     mock_load.return_value = {"sources": [], "destinations": [], "pipelines": []}

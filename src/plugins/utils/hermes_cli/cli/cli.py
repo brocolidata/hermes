@@ -25,6 +25,30 @@ from hermes import utils
 from hermes.pipeline import get_pipeline
 from hermes.settings import get_config_file_path
 
+
+class FileStorage:
+    def __init__(self, root_path: str):
+        self.root = Path(root_path).resolve()
+
+    def make_full_path(self, rel_path: str) -> str:
+        return str(self.root / rel_path)
+
+    def has_folder(self, rel_path: str) -> bool:
+        return (self.root / rel_path).is_dir()
+
+    def create_folder(self, rel_path: str):
+        (self.root / rel_path).mkdir(parents=True, exist_ok=True)
+
+    def has_file(self, rel_path: str) -> bool:
+        return (self.root / rel_path).is_file()
+
+    def save(self, rel_path: str, content: str):
+        full_path = self.root / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(full_path, "w") as f:
+            f.write(content)
+
+
 app = typer.Typer(
     name="hermes",
     help="Hermes Command Line Interface",
@@ -61,19 +85,50 @@ def setup_logging(level_str: str):
     root_logger.addHandler(handler)
 
 
-def find_pyproject_toml() -> str:
-    """Locate pyproject.toml by traversing up from the current working directory."""
-    current_dir = os.getcwd()
-    while current_dir != os.path.dirname(current_dir):  # Stop at root
-        pyproject_path = os.path.join(current_dir, "pyproject.toml")
-        if os.path.isfile(pyproject_path):
-            return pyproject_path
-        current_dir = os.path.dirname(current_dir)
-    raise FileNotFoundError("pyproject.toml not found")
+def find_pyproject_toml(start_dir: str = None, max_depth: int = None) -> str:
+    """
+    Locate pyproject.toml by traversing up from the start directory (default: current working directory).
+
+    Args:
+        start_dir: Directory to start the search from (defaults to os.getcwd()).
+        max_depth: Maximum number of parent directories to traverse (None for unlimited).
+
+    Returns:
+        Path to pyproject.toml if found.
+
+    Raises:
+        FileNotFoundError: If pyproject.toml is not found.
+        PermissionError: If access to a directory is denied.
+    """
+    current_dir = os.path.abspath(start_dir or os.getcwd())
+    depth = 0
+
+    while True:
+        try:
+            pyproject_path = os.path.join(current_dir, "pyproject.toml")
+            if os.path.isfile(pyproject_path):
+                return pyproject_path
+
+            # Stop at the root directory or if max_depth is reached
+            parent_dir = os.path.dirname(current_dir)
+            if parent_dir == current_dir or (
+                max_depth is not None and depth >= max_depth
+            ):
+                raise FileNotFoundError(
+                    f"pyproject.toml not found starting from {start_dir or os.getcwd()}"
+                )
+
+            current_dir = parent_dir
+            depth += 1
+
+        except PermissionError as e:
+            raise PermissionError(
+                f"Permission denied while accessing {current_dir}: {e}"
+            )
 
 
 def get_available_connectors():
-    """Extract connectors ending with 'source' or 'destination' from tool.uv.sources."""
+    """Extract connectors ending with '_source' or '_destination' from tool.uv.sources."""
     pyproject_path = find_pyproject_toml()
     with open(pyproject_path, "rb") as f:
         data = tomllib.load(f)
@@ -230,11 +285,11 @@ def debug(
     setup_logging(logging_level)
 
     print("\n[SYSTEM INFORMATION]")
-    print(f"• Hermes Version : {version('hermes')}")
-    print(f"• Python Version: {sys.version.split()[0]}")
-    print(f"• Python Path   : {sys.executable}")
-    print(f"• Platform      : {platform.system()} {platform.release()}")
-    print(f"• Working Dir   : {os.getcwd()}")
+    print(f"• Hermes Version  : {version('hermes')}")
+    print(f"• Python Version  : {sys.version.split()[0]}")
+    print(f"• Python Path     : {sys.executable}")
+    print(f"• Platform        : {platform.system()} {platform.release()}")
+    print(f"• Working Dir     : {os.getcwd()}")
 
     installed_connectors = get_installed_hermes_connectors()
 
@@ -253,16 +308,10 @@ def debug(
     print("\n[CONFIGURATION FILE]")
     if config_file_path:
         print(
-            f"[bold green]• config.yml file Found[/bold green] in : {config_file_path}"
+            f"[bold green]• config.yml file Found[/bold green] at : {config_file_path}"
         )
     else:
         print("[bold red]No configuration file found.[/bold red]")
-
-
-@app.command()
-def setup_project():
-    """Set up a Hermes project with required environment variables."""
-    typer.echo("Setting up Hermes project...")
 
 
 @pipeline_app.command("run")
@@ -369,12 +418,52 @@ def artefact_validate(
 
 
 @app.command(name="init")
-def init_command():
-    from hermes.settings import generate_config_file
-
+def init_command(destination_path: str = None):
     """Initialize the Hermes CLI command"""
     try:
-        generate_config_file()
+        destination_path = destination_path or os.getcwd()
+        dest_storage = FileStorage(destination_path)
+        folders_to_create = ["configuration", "artefacts", "custom_connectors"]
+        hermes_content = """# hermes_config.yml - Default configuration
+project_paths:
+    configuration_folder: ./configuration
+    artefacts_folder: ./artefacts
+    custom_connectors_folder: ./custom_connectors
+"""
+
+        created_items = {}
+
+        # Step 1: Create folders
+        for folder in folders_to_create:
+            if not dest_storage.has_folder(folder):
+                dest_storage.create_folder(folder)
+                created_items[folder] = "folder_created"
+
+        # Step 2: Generate hermes_config.yml if it doesn't exist
+        hermes_path = dest_storage.make_full_path("hermes_config.yml")
+        if dest_storage.has_file("hermes_config.yml"):
+            console.print(
+                f"[bold yellow]Warning:[/bold yellow] {hermes_path} already exists, skipping creation."
+            )
+        else:
+            dest_storage.save("hermes_config.yml", hermes_content)
+            created_items[hermes_path] = "generated"
+
+        # Step 3: Welcome message
+        console.print(
+            f"[bold green] Project initialized in {destination_path}, Folders created: configuration, artefacts, custom_connectors.[/bold green]"
+        )
+
+        if hermes_path in created_items:
+            console.print(
+                f"[bold green]hermes_config.yml file created:[/bold green] {hermes_path}"
+            )
+        else:
+            console.print(
+                f"[bold yellow]hermes_config.yml file already exists:[/bold yellow] {hermes_path}"
+            )
+        return created_items
+
     except Exception as e:
         console.print(f"[bold red]Error generating configuration file:[/bold red] {e}")
         raise typer.Exit(code=1)

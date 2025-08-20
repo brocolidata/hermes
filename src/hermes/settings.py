@@ -8,7 +8,7 @@ import yaml
 from hermes.exceptions import ConfigLoadError
 
 HERMES_DEFINITIONS_FILE = "definitions.json"
-HERMES_CONFIG_FILE = "config.yml"
+HERMES_CONFIG_FILE = "hermes_config.yml"
 
 
 class ConnectorsMetaTypes(str, enum.Enum):

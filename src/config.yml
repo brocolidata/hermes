@@ -1,4 +1,0 @@
-project_paths:
-  artifacts_folder: '# equivalent of HERMES_ARTIFACTS_FOLDER'
-  configuration_folder: ./hermes
-  custom_connectors_folder: '# equivalent of HERMES_CUSTOM_CONNECTORS_FOLDER'

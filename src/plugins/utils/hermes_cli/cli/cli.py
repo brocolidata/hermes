@@ -22,7 +22,13 @@ from typing_extensions import Annotated
 
 from hermes import utils
 from hermes.pipeline import get_pipeline
-from hermes.settings import HERMES_CONFIG_FILE, get_config_file_path
+from hermes.settings import (
+    HERMES_CONFIG_FILE,
+    get_artifacts_folder,
+    get_config_file_path,
+    get_config_folder,
+    get_custom_connectors_folder,
+)
 
 
 class FileStorage:
@@ -303,6 +309,25 @@ def debug(
     else:
         print("[bold red]No configuration file found.[/bold red]")
 
+    # print("\n[ENVIRONMENT VARIABLES]")
+    # config_folder = get_config_folder()
+    # artefact_folder = get_artifacts_folder()
+    # custom_connectors_folder = get_custom_connectors_folder()
+    # if config_folder:
+    #     print(f"• HERMES_CONFIG_FOLDER: {config_folder}")
+    # else:
+    #     print("[bold red]HERMES_CONFIG_FOLDER not set.[/bold red]")
+    # if artefact_folder:
+    #     print(f"• HERMES_ARTIFACTS_FOLDER: {artefact_folder}")
+    # else:
+    #     print("[bold red]HERMES_ARTIFACTS_FOLDER not set.[/bold red]")
+    # if custom_connectors_folder:
+    #     print(f"• HERMES_CUSTOM_CONNECTORS_FOLDER: {custom_connectors_folder}")
+    # else:
+    #     print("[bold red]HERMES_CUSTOM_CONNECTORS_FOLDER not set.[/bold red]")
+
+    raise typer.Exit(code=0)
+
 
 @pipeline_app.command("run")
 def run_pipeline(name: str):
@@ -452,6 +477,18 @@ project_paths:
             console.print(
                 f"[bold yellow]{HERMES_CONFIG_FILE} file already exists:[/bold yellow] {hermes_path}"
             )
+
+        # Ask user if he want to install connector
+        confirm_install = typer.confirm(
+            "Do you want to install Hermes connectors?",
+            default=True,
+        )
+        if confirm_install:
+            console.print("[bold green]Installing Hermes connectors...[/bold green]")
+            install_connector()
+        else:
+            console.print("[bold yellow]Skipping connector installation.[/bold yellow]")
+
         return created_items
 
     except Exception as e:
@@ -461,12 +498,6 @@ project_paths:
 
 @app.command(name="test")
 def test_get_config_file():
-    from hermes.settings import (
-        get_artifacts_folder,
-        get_config_folder,
-        get_custom_connectors_folder,
-    )
-
     """Test the get_config_file function"""
     config_folder = get_config_folder()
     artefact_folder = get_artifacts_folder()

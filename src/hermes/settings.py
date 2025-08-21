@@ -52,6 +52,78 @@ def load_config_file():
         return yaml.safe_load(f) or {}
 
 
+def resolve_path_from_env_config(
+    env_var_name: str,
+    config_key: str,
+    path_description: str,
+    create_if_missing: bool = False,
+) -> pathlib.Path:
+    """
+    Generic helper function to resolve a path from an environment variable or configuration file.
+    Args:
+        env_var_name (str): The name of the environment variable to check.
+        config_key (str): The key in the configuration file to check if the environment variable is not set.
+        path_description (str): A description of the path for error messages.
+        create_if_missing (bool): If True, create the directory if it does not exist.
+    Returns:
+        pathlib.Path: The resolved path.
+    Raises:
+        ConfigLoadError: If the path cannot be resolved from either the environment variable or the configuration file.
+    """
+    #! 1. Try environment variable first (highest priority)
+    env_path = os.getenv(env_var_name)
+    if env_path:
+        resolved_path = pathlib.Path(env_path)
+        path = pathlib.Path(env_path)
+        print(f"Using {env_var_name} environment variable: {resolved_path}")
+    else:
+        #! 2. Try config file
+        try:
+            config = load_config_file()
+            config_paths = config.get("project_paths", {})
+            config_path = config_paths.get(config_key)
+            if not config_path:
+                raise ConfigLoadError(
+                    process_step=f"access to {path_description}",
+                    error=f"{env_var_name} environment variable or '{config_key}' entry in {HERMES_CONFIG_FILE} must be set",
+                )
+            print(f"Using {config_key} from configuration file: {config_path}")
+            path = pathlib.Path(config_path)
+        except FileNotFoundError as e:
+            raise ConfigLoadError(
+                process_step=f"Load config from   {path_description}",
+                error=f"Failed to load config file {HERMES_CONFIG_FILE}: {str(e)}",
+            )
+    #! 3. Resolve relative or absolute path
+    if not path.is_absolute():
+        path = pathlib.Path(Path.cwd(), path)
+
+    path = path.resolve()
+
+    if not path.exists():
+        if create_if_missing:
+            try:
+                path.mkdir(parents=True, exist_ok=True)
+                print(f"Created {path_description} directory: {path}")
+            except Exception as e:
+                raise ConfigLoadError(
+                    process_step=f"create {path_description}",
+                    error=f"Failed to create directory '{path}': {str(e)}",
+                )
+        else:
+            raise ConfigLoadError(
+                process_step=f"access {path_description}",
+                error=f"{path_description.title()} path '{path}' does not exist",
+            )
+    if not path.is_dir():
+        raise ConfigLoadError(
+            process_step=f"validate {path_description}",
+            error=f"{path_description.title()} path '{path}' exists but is not a directory",
+        )
+    print(f"Successfully resolved {path_description}: {path}")
+    return path
+
+
 def get_config_file_path() -> pathlib.Path:
     """Get the full path of the Hermes configuration file"""
     project_root = Path.cwd().resolve()
@@ -61,7 +133,7 @@ def get_config_file_path() -> pathlib.Path:
     return config_file
 
 
-def get_config_folder() -> pathlib.Path:
+def get_config_folder(create_if_missing: bool = False) -> pathlib.Path:
     """Get the value of HERMES_CONFIG_FOLDER environment variable
 
     Raises:
@@ -70,39 +142,16 @@ def get_config_folder() -> pathlib.Path:
     Returns:
         pathlib.Path: The value of HERMES_CONFIG_FOLDER environment variable
     """
-    hermes_config_folder = os.getenv("HERMES_CONFIG_FOLDER")
-    if hermes_config_folder:
-        return pathlib.Path(hermes_config_folder)
-
-    config = load_config_file()
-    config_paths = config.get("project_paths", {})
-    hermes_config_folder = config_paths.get("configuration_folder")
-
-    if hermes_config_folder:
-        config_path = pathlib.Path(hermes_config_folder)
-        if not config_path.is_absolute():
-            config_path = pathlib.Path(Path.cwd(), hermes_config_folder)
-        # Normalize path to remove '..' or redundant separators
-        config_path = config_path.resolve()
-        if not config_path.exists():
-            raise ConfigLoadError(
-                process_step="access to Hermes configuration folder",
-                error=f"configuration_folder path '{hermes_config_folder}' in config.yaml does not exist",
-            )
-        if not config_path.is_dir():
-            raise ConfigLoadError(
-                process_step="access to Hermes configuration folder",
-                error=f"configuration_folder path '{hermes_config_folder}' in config.yaml is not a directory",
-            )
-        return config_path
-
-    raise ConfigLoadError(
-        process_step="access to Hermes configuration folder",
-        error="HERMES_CONFIG_FOLDER environment variable or config file entry must be set",
+    path = resolve_path_from_env_config(
+        env_var_name="HERMES_CONFIG_FOLDER",
+        config_key="configuration_folder",
+        path_description="Hermes configuration folder",
+        create_if_missing=create_if_missing,
     )
+    return path
 
 
-def get_artifacts_folder() -> str:
+def get_artifacts_folder(create_if_missing: bool = False) -> pathlib.Path:
     """Get the value of HERMES_ARTIFACTS_FOLDER environment variable
 
     Raises:
@@ -111,39 +160,15 @@ def get_artifacts_folder() -> str:
     Returns:
         str: The value of HERMES_ARTIFACTS_FOLDER environment variable
     """
-    hermes_artifacts_folder = os.getenv("HERMES_ARTIFACTS_FOLDER")
-    if hermes_artifacts_folder:
-        return hermes_artifacts_folder
-
-    config = load_config_file()
-    config_paths = config.get("project_paths", {})
-    hermes_artefact_folder = config_paths.get("artifacts_folder")
-
-    if hermes_artefact_folder:
-        artefact_path = pathlib.Path(hermes_artefact_folder)
-        if not artefact_path.is_absolute():
-            artefact_path = pathlib.Path(Path.cwd(), hermes_artefact_folder)
-        # Normalize path to remove '..' or redundant separators
-        artefact_path = artefact_path.resolve()
-        if not artefact_path.exists():
-            raise ConfigLoadError(
-                process_step="access to Hermes configuration folder",
-                error=f"configuration_folder path '{hermes_artefact_folder}' in config.yaml does not exist",
-            )
-        if not artefact_path.is_dir():
-            raise ConfigLoadError(
-                process_step="access to Hermes configuration folder",
-                error=f"configuration_folder path '{hermes_artefact_folder}' in config.yaml is not a directory",
-            )
-        return artefact_path
-
-    raise ConfigLoadError(
-        process_step="access to Hermes configuration folder",
-        error="HERMES_CONFIG_FOLDER environment variable or config file entry must be set",
+    return resolve_path_from_env_config(
+        env_var_name="HERMES_ARTIFACTS_FOLDER",
+        config_key="artefacts_folder",
+        path_description="artifacts folder",
+        create_if_missing=create_if_missing,
     )
 
 
-def get_custom_connectors_folder() -> str:
+def get_custom_connectors_folder(create_if_missing: bool = False) -> pathlib.Path:
     """Get the value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
 
     Raises:
@@ -152,15 +177,12 @@ def get_custom_connectors_folder() -> str:
     Returns:
         str: The value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
     """
-    hermes_custom_connectors_folder = os.getenv("HERMES_CUSTOM_CONNECTORS_FOLDER")
-    # add retreive from fichier yml
-    if not hermes_custom_connectors_folder:
-        raise ConfigLoadError(
-            process_step="access to custom connectors folder",
-            error="HERMES_CUSTOM_CONNECTORS_FOLDER environment variable must be set",
-        )
-    else:
-        return hermes_custom_connectors_folder
+    return resolve_path_from_env_config(
+        env_var_name="HERMES_CUSTOM_CONNECTORS_FOLDER",
+        config_key="custom_connectors_folder",
+        path_description="custom connectors folder",
+        create_if_missing=create_if_missing,
+    )
 
 
 def get_definition_file_path() -> pathlib.Path:

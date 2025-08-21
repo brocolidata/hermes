@@ -3,7 +3,6 @@ import os
 import platform
 import subprocess
 import sys
-import tomllib
 from importlib.metadata import version
 from pathlib import Path
 from typing import Optional
@@ -23,7 +22,7 @@ from typing_extensions import Annotated
 
 from hermes import utils
 from hermes.pipeline import get_pipeline
-from hermes.settings import get_config_file_path
+from hermes.settings import HERMES_CONFIG_FILE, get_config_file_path
 
 
 class FileStorage:
@@ -129,21 +128,12 @@ def find_pyproject_toml(start_dir: str = None, max_depth: int = None) -> str:
 
 def get_available_connectors():
     """Extract connectors ending with '_source' or '_destination' from tool.uv.sources."""
-    pyproject_path = find_pyproject_toml()
-    with open(pyproject_path, "rb") as f:
-        data = tomllib.load(f)
-    sources = data.get("tool", {}).get("uv", {}).get("sources", {})
-    hermes_connectors = [
-        key for key in sources if key.endswith(("_source", "_destination"))
+    return [
+        "custom_source",
+        "athena_iceberg_destination",
+        "s3_destination",
+        "local_storage_destination",
     ]
-    # Exclude connectors that ends with '_source' or '_destination'
-    excluded_connectors = ["generic_object_storage_destination"]
-    connectors = [
-        connector
-        for connector in hermes_connectors
-        if connector not in excluded_connectors
-    ]
-    return connectors
 
 
 def get_hermes_version(value: bool):
@@ -308,7 +298,7 @@ def debug(
     print("\n[CONFIGURATION FILE]")
     if config_file_path:
         print(
-            f"[bold green]• config.yml file Found[/bold green] at : {config_file_path}"
+            f"[bold green]• {HERMES_CONFIG_FILE} file Found[/bold green] at : {config_file_path}"
         )
     else:
         print("[bold red]No configuration file found.[/bold red]")
@@ -440,13 +430,13 @@ project_paths:
                 created_items[folder] = "folder_created"
 
         # Step 2: Generate hermes_config.yml if it doesn't exist
-        hermes_path = dest_storage.make_full_path("hermes_config.yml")
-        if dest_storage.has_file("hermes_config.yml"):
+        hermes_path = dest_storage.make_full_path(HERMES_CONFIG_FILE)
+        if dest_storage.has_file(HERMES_CONFIG_FILE):
             console.print(
                 f"[bold yellow]Warning:[/bold yellow] {hermes_path} already exists, skipping creation."
             )
         else:
-            dest_storage.save("hermes_config.yml", hermes_content)
+            dest_storage.save(HERMES_CONFIG_FILE, hermes_content)
             created_items[hermes_path] = "generated"
 
         # Step 3: Welcome message
@@ -456,11 +446,11 @@ project_paths:
 
         if hermes_path in created_items:
             console.print(
-                f"[bold green]hermes_config.yml file created:[/bold green] {hermes_path}"
+                f"[bold green]{HERMES_CONFIG_FILE} file created:[/bold green] {hermes_path}"
             )
         else:
             console.print(
-                f"[bold yellow]hermes_config.yml file already exists:[/bold yellow] {hermes_path}"
+                f"[bold yellow]{HERMES_CONFIG_FILE} file already exists:[/bold yellow] {hermes_path}"
             )
         return created_items
 
@@ -471,14 +461,18 @@ project_paths:
 
 @app.command(name="test")
 def test_get_config_file():
-    from hermes.settings import get_artifacts_folder, get_config_folder
+    from hermes.settings import (
+        get_artifacts_folder,
+        get_config_folder,
+        get_custom_connectors_folder,
+    )
 
     """Test the get_config_file function"""
-    try:
-        config_folder = get_config_folder()
-        artefact_folder = get_artifacts_folder()
-        console.print(f"[bold green]Configuration folder:[/bold green] {config_folder}")
-        console.print(f"[bold green]Artifacts folder:[/bold green] {artefact_folder}")
-    except Exception as e:
-        console.print(f"[bold red]Error getting configuration folder:[/bold red] {e}")
-        raise typer.Exit(code=1)
+    config_folder = get_config_folder()
+    artefact_folder = get_artifacts_folder()
+    custom_connectors_folder = get_custom_connectors_folder()
+    console.print(f"[bold green]Configuration folder:[/bold green] {config_folder}")
+    console.print(f"[bold green]Artifacts folder:[/bold green] {artefact_folder}")
+    console.print(
+        f"[bold green]Custom connectors folder:[/bold green] {custom_connectors_folder}"
+    )

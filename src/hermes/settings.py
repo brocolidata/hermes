@@ -27,24 +27,9 @@ class NodeTypes(str, enum.Enum):
     pipelines = "pipelines"
 
 
-def generate_config_file():
-    """Generate a configuration file for the Hermes CLI"""
-    project_root = Path.cwd().resolve()
-    config_file = project_root / "config.yml"
-    config_file_content = {
-        "project_paths": {
-            "configuration_folder": "# equivalent of HERMES_CONFIG_FOLDER",
-            "artifacts_folder": "# equivalent of HERMES_ARTIFACTS_FOLDER",
-            "custom_connectors_folder": "# equivalent of HERMES_CUSTOM_CONNECTORS_FOLDER",
-        }
-    }
-    with config_file.open("w") as f:
-        yaml.safe_dump(config_file_content, f)
-
-
 def load_config_file():
     """Load the configuration file for the Hermes CLI"""
-    config_file = get_config_file_path()
+    config_file = get_hermes_config_file_path()
     if not config_file.exists():
         return "No configuration file found. Please generate one using 'hermes init'."
 
@@ -57,7 +42,7 @@ def resolve_path_from_env_config(
     config_key: str,
     path_description: str,
     create_if_missing: bool = False,
-) -> pathlib.Path:
+) -> dict:
     """
     Generic helper function to resolve a path from an environment variable or configuration file.
     Args:
@@ -66,16 +51,23 @@ def resolve_path_from_env_config(
         path_description (str): A description of the path for error messages.
         create_if_missing (bool): If True, create the directory if it does not exist.
     Returns:
-        pathlib.Path: The resolved path.
+        dict: A dictionary containing the resolved path and the source of the path (environment variable or configuration file).
     Raises:
         ConfigLoadError: If the path cannot be resolved from either the environment variable or the configuration file.
+    Example:
+        example_path = {
+        "path": "C:/Users/Anass/Desktop/marimo_lab/hermes_config.yml",
+        "source": "environment_variable",
+        }
     """
+    path_dict = {}
+
     #! 1. Try environment variable first (highest priority)
     env_path = os.getenv(env_var_name)
     if env_path:
-        resolved_path = pathlib.Path(env_path)
         path = pathlib.Path(env_path)
-        print(f"Using {env_var_name} environment variable: {resolved_path}")
+        path_dict["path"] = path
+        path_dict["source"] = "environment_variable"
     else:
         #! 2. Try config file
         try:
@@ -87,14 +79,17 @@ def resolve_path_from_env_config(
                     process_step=f"access to {path_description}",
                     error=f"{env_var_name} environment variable or '{config_key}' entry in {HERMES_CONFIG_FILE} must be set",
                 )
-            print(f"Using {config_key} from configuration file: {config_path}")
             path = pathlib.Path(config_path)
+            path_dict["path"] = path
+            path_dict["source"] = "configuration_file"
         except FileNotFoundError as e:
             raise ConfigLoadError(
                 process_step=f"Load config from   {path_description}",
                 error=f"Failed to load config file {HERMES_CONFIG_FILE}: {str(e)}",
             )
     #! 3. Resolve relative or absolute path
+
+    path = path_dict["path"]
     if not path.is_absolute():
         path = pathlib.Path(Path.cwd(), path)
 
@@ -120,12 +115,11 @@ def resolve_path_from_env_config(
             process_step=f"validate {path_description}",
             error=f"{path_description.title()} path '{path}' exists but is not a directory",
         )
-    print(f"Successfully resolved {path_description}: {path}")
-    return path
+    return path_dict
 
 
-def get_config_file_path() -> pathlib.Path:
-    """Get the full path of the Hermes configuration file"""
+def get_hermes_config_file_path() -> pathlib.Path:
+    """Get the full path of hermes_config.yml configuration file"""
     project_root = Path.cwd().resolve()
     config_file = pathlib.Path(project_root, HERMES_CONFIG_FILE)
     if not config_file.exists():
@@ -133,7 +127,7 @@ def get_config_file_path() -> pathlib.Path:
     return config_file
 
 
-def get_config_folder(create_if_missing: bool = False) -> pathlib.Path:
+def get_config_folder(create_if_missing: bool = False) -> dict:
     """Get the value of HERMES_CONFIG_FOLDER environment variable
 
     Raises:
@@ -151,7 +145,7 @@ def get_config_folder(create_if_missing: bool = False) -> pathlib.Path:
     return path
 
 
-def get_artifacts_folder(create_if_missing: bool = False) -> pathlib.Path:
+def get_artifacts_folder(create_if_missing: bool = False) -> dict:
     """Get the value of HERMES_ARTIFACTS_FOLDER environment variable
 
     Raises:
@@ -168,7 +162,7 @@ def get_artifacts_folder(create_if_missing: bool = False) -> pathlib.Path:
     )
 
 
-def get_custom_connectors_folder(create_if_missing: bool = False) -> pathlib.Path:
+def get_custom_connectors_folder(create_if_missing: bool = False) -> dict:
     """Get the value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
 
     Raises:

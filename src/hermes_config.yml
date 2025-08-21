@@ -1,5 +1,0 @@
-# hermes_config.yml - Default configuration
-project_paths:
-    configuration_folder: ./configuration
-    artefacts_folder: ./artefacts
-    custom_connectors_folder: ./custom_connectors

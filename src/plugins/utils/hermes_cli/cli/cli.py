@@ -25,9 +25,9 @@ from hermes.pipeline import get_pipeline
 from hermes.settings import (
     HERMES_CONFIG_FILE,
     get_artifacts_folder,
-    get_config_file_path,
     get_config_folder,
     get_custom_connectors_folder,
+    get_hermes_config_file_path,
 )
 
 
@@ -90,48 +90,6 @@ def setup_logging(level_str: str):
     root_logger.addHandler(handler)
 
 
-def find_pyproject_toml(start_dir: str = None, max_depth: int = None) -> str:
-    """
-    Locate pyproject.toml by traversing up from the start directory (default: current working directory).
-
-    Args:
-        start_dir: Directory to start the search from (defaults to os.getcwd()).
-        max_depth: Maximum number of parent directories to traverse (None for unlimited).
-
-    Returns:
-        Path to pyproject.toml if found.
-
-    Raises:
-        FileNotFoundError: If pyproject.toml is not found.
-        PermissionError: If access to a directory is denied.
-    """
-    current_dir = os.path.abspath(start_dir or os.getcwd())
-    depth = 0
-
-    while True:
-        try:
-            pyproject_path = os.path.join(current_dir, "pyproject.toml")
-            if os.path.isfile(pyproject_path):
-                return pyproject_path
-
-            # Stop at the root directory or if max_depth is reached
-            parent_dir = os.path.dirname(current_dir)
-            if parent_dir == current_dir or (
-                max_depth is not None and depth >= max_depth
-            ):
-                raise FileNotFoundError(
-                    f"pyproject.toml not found starting from {start_dir or os.getcwd()}"
-                )
-
-            current_dir = parent_dir
-            depth += 1
-
-        except PermissionError as e:
-            raise PermissionError(
-                f"Permission denied while accessing {current_dir}: {e}"
-            )
-
-
 def get_available_connectors():
     """Extract connectors ending with '_source' or '_destination' from tool.uv.sources."""
     return [
@@ -149,6 +107,59 @@ def get_hermes_version(value: bool):
             f"[bold blue]Hermes[/bold blue] version : [green]{version('hermes')}[/green]"
         )
         raise typer.Exit()
+
+
+def debug_hermes_system_info():
+    """Print Hermes system information"""
+    print("\n[SYSTEM INFORMATION]")
+    print(f"• Hermes Version  : {version('hermes')}")
+    print(f"• Python Version  : {sys.version.split()[0]}")
+    print(f"• Python Path     : {sys.executable}")
+    print(f"• Platform        : {platform.system()} {platform.release()}")
+    print(f"• Working Dir     : {os.getcwd()}")
+
+
+def debug_hermes_connectors():
+    """Print Hermes connectors information"""
+    print("\n[HERMES CONNECTORS]")
+    installed_connectors = get_installed_hermes_connectors()
+
+    if installed_connectors:
+        print("\n[INSTALLED CONNECTORS]")
+        print("Sources:")
+        for source in installed_connectors["sources"]:
+            print(f"  - {source}")
+        print("Destinations:")
+        for destination in installed_connectors["destinations"]:
+            print(f"  - {destination}")
+    else:
+        print("No connectors installed.")
+
+
+def debug_hermes_configurations():
+    """Show Hermes configuration informations"""
+    config_file_path = get_hermes_config_file_path()
+    print("\n[HERMES CONFIGURATION FILE]")
+    if config_file_path:
+        print(
+            f"[bold green]• {HERMES_CONFIG_FILE} file Found[/bold green] at : {config_file_path}"
+        )
+    else:
+        print(f"[bold red]No {HERMES_CONFIG_FILE} configuration file found.[/bold red]")
+
+    print("\n[HERMES CONFIGURATION VARIABLES]")
+    config_dict = get_config_folder()
+    custom_dict = get_custom_connectors_folder()
+    artefact_dict = get_artifacts_folder()
+    print(
+        f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
+    )
+    print(
+        f"[bold green]• HERMES_CUSTOM_CONNECTORS_FOLDER Found[/bold green] at : {custom_dict['path']} Using {'Environment variable ' if custom_dict['source'] == 'environment_variable' else 'Configuration file'}"
+    )
+    print(
+        f"[bold green]• HERMES_ARTIFACTS_FOLDER Found[/bold green] at : {artefact_dict['path']} Using {'Environment variable ' if artefact_dict['source'] == 'environment_variable' else 'Configuration file'}"
+    )
 
 
 @app.callback()
@@ -280,51 +291,11 @@ def debug(
 
     setup_logging(logging_level)
 
-    print("\n[SYSTEM INFORMATION]")
-    print(f"• Hermes Version  : {version('hermes')}")
-    print(f"• Python Version  : {sys.version.split()[0]}")
-    print(f"• Python Path     : {sys.executable}")
-    print(f"• Platform        : {platform.system()} {platform.release()}")
-    print(f"• Working Dir     : {os.getcwd()}")
+    debug_hermes_system_info()
 
-    installed_connectors = get_installed_hermes_connectors()
+    debug_hermes_connectors()
 
-    if installed_connectors:
-        print("\n[INSTALLED CONNECTORS]")
-        print("Sources:")
-        for source in installed_connectors["sources"]:
-            print(f"  - {source}")
-        print("Destinations:")
-        for destination in installed_connectors["destinations"]:
-            print(f"  - {destination}")
-    else:
-        print("No connectors installed.")
-
-    config_file_path = get_config_file_path()
-    print("\n[CONFIGURATION FILE]")
-    if config_file_path:
-        print(
-            f"[bold green]• {HERMES_CONFIG_FILE} file Found[/bold green] at : {config_file_path}"
-        )
-    else:
-        print("[bold red]No configuration file found.[/bold red]")
-
-    # print("\n[ENVIRONMENT VARIABLES]")
-    # config_folder = get_config_folder()
-    # artefact_folder = get_artifacts_folder()
-    # custom_connectors_folder = get_custom_connectors_folder()
-    # if config_folder:
-    #     print(f"• HERMES_CONFIG_FOLDER: {config_folder}")
-    # else:
-    #     print("[bold red]HERMES_CONFIG_FOLDER not set.[/bold red]")
-    # if artefact_folder:
-    #     print(f"• HERMES_ARTIFACTS_FOLDER: {artefact_folder}")
-    # else:
-    #     print("[bold red]HERMES_ARTIFACTS_FOLDER not set.[/bold red]")
-    # if custom_connectors_folder:
-    #     print(f"• HERMES_CUSTOM_CONNECTORS_FOLDER: {custom_connectors_folder}")
-    # else:
-    #     print("[bold red]HERMES_CUSTOM_CONNECTORS_FOLDER not set.[/bold red]")
+    debug_hermes_configurations()
 
     raise typer.Exit(code=0)
 

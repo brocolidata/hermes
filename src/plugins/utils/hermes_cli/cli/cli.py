@@ -241,7 +241,10 @@ def install_connector():
     typer.echo(f"Selected connectors: {connectors_str}")
 
     # Build installation URL
-    connectors_install_url = f'uv pip install "git+https://github.com/brocolidata/hermes#subdirectory=src["{connectors_str}"]"'
+    github_url = "https://github.com/brocolidata/hermes.git@refs/pull/36/head"
+    connectors_install_url = (
+        f'uv pip install "git+{github_url}#subdirectory=src["{connectors_str}"]"'
+    )
     typer.echo(f"Command: {connectors_install_url}")
     try:
         with Progress(

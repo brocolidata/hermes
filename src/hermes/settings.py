@@ -31,7 +31,7 @@ def load_config_file():
     """Load the configuration file for the Hermes CLI"""
     config_file = get_hermes_config_file_path()
     if not config_file.exists():
-        return "No configuration file found. Please generate one using 'hermes init'."
+        return None
 
     with open(config_file, "r") as f:
         return yaml.safe_load(f) or {}
@@ -72,6 +72,11 @@ def resolve_path_from_env_config(
         #! 2. Try config file
         try:
             config = load_config_file()
+            if not config:
+                raise ConfigLoadError(
+                    process_step=f"load {path_description}",
+                    error=f"{HERMES_CONFIG_FILE} file is empty or not found",
+                )
             config_paths = config.get("project_paths", {})
             config_path = config_paths.get(config_key)
             if not config_path:
@@ -118,7 +123,7 @@ def resolve_path_from_env_config(
     return path_dict
 
 
-def get_hermes_config_file_path() -> pathlib.Path:
+def get_hermes_config_file_path() -> pathlib.Path | None:
     """Get the full path of hermes_config.yml configuration file"""
     project_root = Path.cwd().resolve()
     config_file = pathlib.Path(project_root, HERMES_CONFIG_FILE)

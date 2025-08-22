@@ -152,13 +152,13 @@ def debug_hermes_configurations():
     custom_dict = get_custom_connectors_folder()
     artefact_dict = get_artifacts_folder()
     print(
-        f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} | Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
     )
     print(
-        f"[bold green]• HERMES_CUSTOM_CONNECTORS_FOLDER Found[/bold green] at : {custom_dict['path']} Using {'Environment variable ' if custom_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        f"[bold green]• HERMES_CUSTOM_CONNECTORS_FOLDER Found[/bold green] at : {custom_dict['path']} | Using {'Environment variable ' if custom_dict['source'] == 'environment_variable' else 'Configuration file'}"
     )
     print(
-        f"[bold green]• HERMES_ARTIFACTS_FOLDER Found[/bold green] at : {artefact_dict['path']} Using {'Environment variable ' if artefact_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        f"[bold green]• HERMES_ARTIFACTS_FOLDER Found[/bold green] at : {artefact_dict['path']} |  Using {'Environment variable ' if artefact_dict['source'] == 'environment_variable' else 'Configuration file'}"
     )
 
 
@@ -476,8 +476,12 @@ def test_get_config_file():
     config_folder = get_config_folder()
     artefact_folder = get_artifacts_folder()
     custom_connectors_folder = get_custom_connectors_folder()
-    console.print(f"[bold green]Configuration folder:[/bold green] {config_folder}")
-    console.print(f"[bold green]Artifacts folder:[/bold green] {artefact_folder}")
     console.print(
-        f"[bold green]Custom connectors folder:[/bold green] {custom_connectors_folder}"
+        f"[bold green]Configuration folder:[/bold green] {config_folder['path']} Using {config_folder['source']}"
+    )
+    console.print(
+        f"[bold green]Artifacts folder:[/bold green] {artefact_folder['path']} Using {artefact_folder['source']}"
+    )
+    console.print(
+        f"[bold green]Custom connectors folder:[/bold green] {custom_connectors_folder['path']} Using {custom_connectors_folder['source']}"
     )

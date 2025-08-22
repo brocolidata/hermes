@@ -120,6 +120,7 @@ def resolve_path_from_env_config(
             process_step=f"validate {path_description}",
             error=f"{path_description.title()} path '{path}' exists but is not a directory",
         )
+    path_dict["path"] = path
     return path_dict
 
 

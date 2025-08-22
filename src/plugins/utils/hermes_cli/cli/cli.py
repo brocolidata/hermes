@@ -151,6 +151,7 @@ def debug_hermes_configurations():
     config_dict = get_config_folder()
     custom_dict = get_custom_connectors_folder()
     artefact_dict = get_artifacts_folder()
+    # display the configuration paths
     print(
         f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} | Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
     )

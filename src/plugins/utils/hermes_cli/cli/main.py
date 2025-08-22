@@ -117,9 +117,9 @@ def parse_project(user_config_path=None, artefact_path=None):
         write_definitions(definitions, artefact_path)
 
         # Make sure environment variables are defined
-        _ = settings.get_config_folder()
-        _ = settings.get_artifacts_folder()
-        _ = settings.get_custom_connectors_folder()
+        _ = settings.get_config_folder()["path"]
+        _ = settings.get_artifacts_folder()["path"]
+        _ = settings.get_custom_connectors_folder()["path"]
         config_is_valid = True
         logger.info("Parsing successful !")
     except Exception as e:

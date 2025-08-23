@@ -120,7 +120,7 @@ def resolve_path_from_env_config(
             process_step=f"validate {path_description}",
             error=f"{path_description.title()} path '{path}' exists but is not a directory",
         )
-    path_dict["path"] = path
+    path_dict["path"] = pathlib.Path(path)
     return path_dict
 
 
@@ -133,7 +133,7 @@ def get_hermes_config_file_path() -> pathlib.Path | None:
     return config_file
 
 
-def get_config_folder(create_if_missing: bool = False) -> dict:
+def get_config_folder(create_if_missing: bool = False):
     """Get the value of HERMES_CONFIG_FOLDER environment variable
 
     Raises:

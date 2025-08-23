@@ -53,7 +53,8 @@ def get_available_connectors():
 
 
 def load_and_merge_configs(user_config_path):
-    config_path = user_config_path or settings.get_config_folder()
+    get_config_folder_url = settings.get_config_folder()["path"]
+    config_path = user_config_path or get_config_folder_url
     merged_config = omegaconf.OmegaConf.create(
         {"sources": [], "destinations": [], "pipelines": []}
     )

@@ -122,18 +122,21 @@ def debug_hermes_system_info():
 def debug_hermes_connectors():
     """Print Hermes connectors information"""
     print("\n[HERMES CONNECTORS]")
-    installed_connectors = get_installed_hermes_connectors()
+    try:
+        installed_connectors = get_installed_hermes_connectors()
 
-    if installed_connectors:
-        print("\n[INSTALLED CONNECTORS]")
-        print("Sources:")
-        for source in installed_connectors["sources"]:
-            print(f"  - {source}")
-        print("Destinations:")
-        for destination in installed_connectors["destinations"]:
-            print(f"  - {destination}")
-    else:
-        print("No connectors installed.")
+        if installed_connectors:
+            print("\n[INSTALLED CONNECTORS]")
+            print("Sources:")
+            for source in installed_connectors["sources"]:
+                print(f"  - {source}")
+            print("Destinations:")
+            for destination in installed_connectors["destinations"]:
+                print(f"  - {destination}")
+        else:
+            print("No connectors installed.")
+    except Exception as e:
+        print(f"[bold red]Error retrieving connectors:[/bold red] {e}")
 
 
 def debug_hermes_configurations():
@@ -148,19 +151,33 @@ def debug_hermes_configurations():
         print(f"[bold red]No {HERMES_CONFIG_FILE} configuration file found.[/bold red]")
 
     print("\n[HERMES CONFIGURATION VARIABLES]")
-    config_dict = get_config_folder()
-    custom_dict = get_custom_connectors_folder()
-    artefact_dict = get_artifacts_folder()
-    # display the configuration paths
-    print(
-        f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} | Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
-    )
-    print(
-        f"[bold green]• HERMES_CUSTOM_CONNECTORS_FOLDER Found[/bold green] at : {custom_dict['path']} | Using {'Environment variable ' if custom_dict['source'] == 'environment_variable' else 'Configuration file'}"
-    )
-    print(
-        f"[bold green]• HERMES_ARTIFACTS_FOLDER Found[/bold green] at : {artefact_dict['path']} |  Using {'Environment variable ' if artefact_dict['source'] == 'environment_variable' else 'Configuration file'}"
-    )
+
+    # Check HERMES_CONFIG_FOLDER
+    try:
+        config_dict = get_config_folder()
+        print(
+            f"[bold green]• HERMES_CONFIG_FOLDER Found[/bold green] at : {config_dict['path']} | Using {'Environment variable ' if config_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        )
+    except Exception as e:
+        print(f"[bold red]• HERMES_CONFIG_FOLDER Error:[/bold red] {e}")
+
+    # Check HERMES_CUSTOM_CONNECTORS_FOLDER
+    try:
+        custom_dict = get_custom_connectors_folder()
+        print(
+            f"[bold green]• HERMES_CUSTOM_CONNECTORS_FOLDER Found[/bold green] at : {custom_dict['path']} | Using {'Environment variable ' if custom_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        )
+    except Exception as e:
+        print(f"[bold red]• HERMES_CUSTOM_CONNECTORS_FOLDER Error:[/bold red] {e}")
+
+    # Check HERMES_ARTIFACTS_FOLDER
+    try:
+        artefact_dict = get_artifacts_folder()
+        print(
+            f"[bold green]• HERMES_ARTIFACTS_FOLDER Found[/bold green] at : {artefact_dict['path']} |  Using {'Environment variable ' if artefact_dict['source'] == 'environment_variable' else 'Configuration file'}"
+        )
+    except Exception as e:
+        print(f"[bold red]• HERMES_ARTIFACTS_FOLDER Error:[/bold red] {e}")
 
 
 @app.callback()

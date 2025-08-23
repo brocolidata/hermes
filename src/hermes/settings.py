@@ -191,7 +191,7 @@ def get_definition_file_path() -> pathlib.Path:
     Returns:
         pathlib.Path: Full path of Hermes definition file
     """
-    artifact_folder = get_artifacts_folder()
+    artifact_folder = get_artifacts_folder()["path"]
     definition_file_path = pathlib.Path(artifact_folder, HERMES_DEFINITIONS_FILE)
     return definition_file_path
 

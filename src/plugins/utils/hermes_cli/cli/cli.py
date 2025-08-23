@@ -396,8 +396,9 @@ def artefact_parse(
     Parses, validates, and merges YAML configuration files into a single JSON definition file.
     """
     setup_logging(logging_level)
-
-    _ = parse_project(config_path, artefact_path)
+    config_path_str = str(config_path) if config_path else None
+    artefact_path_str = str(artefact_path) if artefact_path else None
+    _ = parse_project(config_path_str, artefact_path_str)
 
 
 @app.command()

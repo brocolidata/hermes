@@ -2,6 +2,8 @@ import json
 import logging
 import pathlib
 from importlib.metadata import entry_points
+from pathlib import Path
+from typing import Optional
 
 import omegaconf
 from jsonschema import validate
@@ -37,6 +39,39 @@ def get_installed_hermes_connectors() -> list[str]:
         logger.error(f"Error retrieving Hermes connectors: {e}")
 
 
+def get_pyproject_toml_path() -> Optional[Path]:
+    """Check if pyproject.toml exists in the current directory"""
+
+    current_path = Path.cwd().resolve()
+    pyproject_path = current_path / "pyproject.toml"
+    if pyproject_path.exists():
+        return pyproject_path
+
+    for parent in current_path.parents:
+        pyproject_path = parent / "pyproject.toml"
+        if pyproject_path.exists():
+            return pyproject_path
+
+
+def load_pyproject_toml():
+    """
+    Load the pyproject.toml file if it exists.
+
+    Returns:
+        dict: The contents of the pyproject.toml file.
+    """
+    import tomllib
+
+    pyproject_path = get_pyproject_toml_path()
+    if pyproject_path:
+        with open(pyproject_path, "rb") as f:
+            pyproject_data = tomllib.load(f)
+        return pyproject_data
+    else:
+        logger.warning("No pyproject.toml file found.")
+        return {}
+
+
 def get_available_connectors():
     """
     Get a list of all available Hermes connectors.
@@ -44,12 +79,20 @@ def get_available_connectors():
     Returns:
         list[str]: List of all available Hermes connectors.
     """
-    plugins_path = pathlib.Path("plugins")
-    available_connectors = {"sources": [], "destinations": []}
-    subdirs = {
-        "sources": plugins_path / "sources",
-        "destinations": plugins_path / "destinations",
-    }
+    excluded_connectors = [
+        "generic_object_storage_destination",
+        "hermes_artefact_parser",
+        "hermes_cli",
+    ]
+    pyproject_data = load_pyproject_toml()
+    tool_uv_sources = pyproject_data.get("tool", {}).get("uv", {}).get("sources", [])
+    tool_uv_sources_keys = tool_uv_sources.keys()
+    connectors = [
+        connector
+        for connector in tool_uv_sources_keys
+        if connector not in excluded_connectors
+    ]
+    return connectors
 
 
 def load_and_merge_configs(user_config_path):

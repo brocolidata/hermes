@@ -10,6 +10,7 @@ from typing import Optional
 import questionary
 import typer
 from cli.main import (
+    get_available_connectors,
     get_installed_hermes_connectors,
     parse_project,
 )
@@ -90,16 +91,6 @@ def setup_logging(level_str: str):
     root_logger.addHandler(handler)
 
 
-def get_available_connectors():
-    """Extract connectors ending with '_source' or '_destination' from tool.uv.sources."""
-    return [
-        "custom_source",
-        "athena_iceberg_destination",
-        "s3_destination",
-        "local_storage_destination",
-    ]
-
-
 def get_hermes_version(value: bool):
     """Show version information and exit"""
     if value:
@@ -119,18 +110,17 @@ def debug_hermes_system_info():
     print(f"• Working Dir     : {os.getcwd()}")
 
 
-def debug_hermes_connectors():
+def debug_hermes_installed_connectors():
     """Print Hermes connectors information"""
-    print("\n[HERMES CONNECTORS]")
+    print("\n[HERMES INSTALLED CONNECTORS]")
     try:
         installed_connectors = get_installed_hermes_connectors()
 
         if installed_connectors:
-            print("\n[INSTALLED CONNECTORS]")
-            print("Sources:")
+            print("• Sources:")
             for source in installed_connectors["sources"]:
                 print(f"  - {source}")
-            print("Destinations:")
+            print("• Destinations:")
             for destination in installed_connectors["destinations"]:
                 print(f"  - {destination}")
         else:
@@ -178,6 +168,21 @@ def debug_hermes_configurations():
         )
     except Exception as e:
         print(f"[bold red]• HERMES_ARTIFACTS_FOLDER Error:[/bold red] {e}")
+
+
+def debug_hermes_available_connectors():
+    """Print available Hermes connectors information"""
+    print("\n[HERMES AVAILABLE CONNECTORS]")
+    try:
+        available_connectors = get_available_connectors()
+        if available_connectors:
+            for connector in available_connectors:
+                print(f"  - {connector}")
+
+        else:
+            print("No available connectors found.")
+    except Exception as e:
+        print(f"[bold red]Error retrieving available connectors:[/bold red] {e}")
 
 
 @app.callback()
@@ -314,7 +319,9 @@ def debug(
 
     debug_hermes_system_info()
 
-    debug_hermes_connectors()
+    debug_hermes_available_connectors()
+
+    debug_hermes_installed_connectors()
 
     debug_hermes_configurations()
 
@@ -432,7 +439,7 @@ def init_command(destination_path: str = None):
         destination_path = destination_path or os.getcwd()
         dest_storage = FileStorage(destination_path)
         folders_to_create = ["configuration", "artefacts", "custom_connectors"]
-        hermes_content = """# hermes_config.yml - Default configuration
+        hermes_content = """# hermes_config.yml - Default Hermes configuration file
 project_paths:
     configuration_folder: ./configuration
     artefacts_folder: ./artefacts
@@ -490,17 +497,7 @@ project_paths:
 
 
 @app.command(name="test")
-def test_get_config_file():
-    """Test the get_config_file function"""
-    config_folder = get_config_folder()
-    artefact_folder = get_artifacts_folder()
-    custom_connectors_folder = get_custom_connectors_folder()
-    console.print(
-        f"[bold green]Configuration folder:[/bold green] {config_folder['path']} Using {config_folder['source']}"
-    )
-    console.print(
-        f"[bold green]Artifacts folder:[/bold green] {artefact_folder['path']} Using {artefact_folder['source']}"
-    )
-    console.print(
-        f"[bold green]Custom connectors folder:[/bold green] {custom_connectors_folder['path']} Using {custom_connectors_folder['source']}"
-    )
+def test():
+    pyproject_data = get_available_connectors()
+    print(type(pyproject_data))
+    print(pyproject_data)

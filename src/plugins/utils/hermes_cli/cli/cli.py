@@ -18,7 +18,6 @@ from prompt_toolkit.styles import Style
 from rich import print
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from typing_extensions import Annotated
 
@@ -278,14 +277,10 @@ def install_connector():
         "🎯 Select connectors to install:",
         choices=connectors,
         validate=lambda x: True if x else "❌ Please select at least one connector!",
-        style=custom_style,
+        style=custom_style,  # or remove style if unsure
     ).ask()
 
-    # Handle user cancellation
-    if selected_connectors is None:
-        console.print("\n[yellow]🚫 Installation cancelled by user[/yellow]")
-        raise typer.Exit(code=0)
-
+    # Handle  cancellation / no selection
     if not selected_connectors:
         console.print("[bold red]❌ No connectors selected[/bold red]")
         raise typer.Exit(code=1)
@@ -301,13 +296,6 @@ def install_connector():
     )
     typer.echo(f"Command: {connectors_install_url}")
     try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task("Installing connectors...", total=None)
-
         result = subprocess.run(
             connectors_install_url,
             shell=True,

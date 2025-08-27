@@ -64,7 +64,7 @@ app = typer.Typer(
 
 pipeline_app = typer.Typer(
     name="pipeline",
-    help="Pipeline management commands - list and run your data pipelines",
+    help="Manage and execute data pipelines.",
     rich_markup_mode="rich",
 )
 console = Console()
@@ -313,7 +313,7 @@ def debug(
         ),
     ] = "INFO",
 ):
-    """Show information on the current Hermes environment and check installed connectors"""
+    """Inspect the Hermes environment."""
 
     setup_logging(logging_level)
 
@@ -336,6 +336,7 @@ def run_pipeline(name: str):
     if name in available_pipelines:
         try:
             pipeline = get_pipeline(name)
+            print(f"Pipeline: {pipeline}")
             print(f"Running pipeline: {name}")
             pipeline.run()
             print(f"Pipeline {name} completed successfully.")
@@ -434,7 +435,7 @@ def artefact_validate(
 
 @app.command(name="init")
 def init_command(destination_path: str = None):
-    """Initialize the Hermes CLI command"""
+    """Initialize Hermes in a new project"""
     try:
         destination_path = destination_path or os.getcwd()
         dest_storage = FileStorage(destination_path)

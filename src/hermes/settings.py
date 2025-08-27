@@ -151,7 +151,7 @@ def get_config_folder(create_if_missing: bool = False):
     return path
 
 
-def get_artifacts_folder(create_if_missing: bool = False) -> dict:
+def get_artifacts_folder(create_if_missing: bool = False):
     """Get the value of HERMES_ARTIFACTS_FOLDER environment variable
 
     Raises:
@@ -160,15 +160,16 @@ def get_artifacts_folder(create_if_missing: bool = False) -> dict:
     Returns:
         str: The value of HERMES_ARTIFACTS_FOLDER environment variable
     """
-    return resolve_path_from_env_config(
+    path = resolve_path_from_env_config(
         env_var_name="HERMES_ARTIFACTS_FOLDER",
         config_key="artefacts_folder",
         path_description="artifacts folder",
         create_if_missing=create_if_missing,
     )
+    return path
 
 
-def get_custom_connectors_folder(create_if_missing: bool = False) -> dict:
+def get_custom_connectors_folder(create_if_missing: bool = False):
     """Get the value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
 
     Raises:
@@ -177,12 +178,13 @@ def get_custom_connectors_folder(create_if_missing: bool = False) -> dict:
     Returns:
         str: The value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
     """
-    return resolve_path_from_env_config(
+    path = resolve_path_from_env_config(
         env_var_name="HERMES_CUSTOM_CONNECTORS_FOLDER",
         config_key="custom_connectors_folder",
         path_description="custom connectors folder",
         create_if_missing=create_if_missing,
     )
+    return path
 
 
 def get_definition_file_path() -> pathlib.Path:
@@ -191,7 +193,8 @@ def get_definition_file_path() -> pathlib.Path:
     Returns:
         pathlib.Path: Full path of Hermes definition file
     """
-    artifact_folder = get_artifacts_folder()["path"]
+    artifacts_result = get_artifacts_folder()
+    artifact_folder = artifacts_result["path"]
     definition_file_path = pathlib.Path(artifact_folder, HERMES_DEFINITIONS_FILE)
     return definition_file_path
 

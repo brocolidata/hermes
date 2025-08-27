@@ -336,10 +336,9 @@ def run_pipeline(name: str):
     if name in available_pipelines:
         try:
             pipeline = get_pipeline(name)
-            print(f"Pipeline: {pipeline}")
-            print(f"Running pipeline: {name}")
+            print(f"[bold green]Running pipeline:[/bold green] {name}")
             pipeline.run()
-            print(f"Pipeline {name} completed successfully.")
+            print(f"[bold green]Pipeline {name} completed successfully![/bold green]")
 
         except Exception as e:
             print(f"Error running pipeline {name}: {e}")

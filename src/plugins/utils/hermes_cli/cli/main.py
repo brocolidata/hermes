@@ -79,20 +79,29 @@ def get_available_connectors():
     Returns:
         list[str]: List of all available Hermes connectors.
     """
-    excluded_connectors = [
-        "generic_object_storage_destination",
-        "hermes_artefact_parser",
-        "hermes_cli",
+    return [
+        "custom_source",
+        "athena_iceberg_destination",
+        "s3_destination",
+        "local_storage_destination",
     ]
-    pyproject_data = load_pyproject_toml()
-    tool_uv_sources = pyproject_data.get("tool", {}).get("uv", {}).get("sources", [])
-    tool_uv_sources_keys = tool_uv_sources.keys()
-    connectors = [
-        connector
-        for connector in tool_uv_sources_keys
-        if connector not in excluded_connectors
-    ]
-    return connectors
+
+    #! This works in dev mode but not in production
+    #! it not locates the pyproject.toml file
+    # excluded_connectors = [
+    #     "generic_object_storage_destination",
+    #     "hermes_artefact_parser",
+    #     "hermes_cli",
+    # ]
+    # pyproject_data = load_pyproject_toml()
+    # tool_uv_sources = pyproject_data.get("tool", {}).get("uv", {}).get("sources", [])
+    # tool_uv_sources_keys = tool_uv_sources.keys()
+    # connectors = [
+    #     connector
+    #     for connector in tool_uv_sources_keys
+    #     if connector not in excluded_connectors
+    # ]
+    # return connectors
 
 
 def load_and_merge_configs(user_config_path):

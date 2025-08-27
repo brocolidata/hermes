@@ -30,9 +30,6 @@ class NodeTypes(str, enum.Enum):
 def load_config_file():
     """Load the configuration file for the Hermes CLI"""
     config_file = get_hermes_config_file_path()
-    if not config_file.exists():
-        return None
-
     with open(config_file, "r") as f:
         return yaml.safe_load(f) or {}
 
@@ -140,15 +137,21 @@ def get_config_folder(create_if_missing: bool = False):
         ConfigLoadError: if HERMES_CONFIG_FOLDER environment variable isn't set
 
     Returns:
-        pathlib.Path: The value of HERMES_CONFIG_FOLDER environment variable
+       dict: A dictionary containing the resolved path and the source of the path (environment variable or configuration file)
+
+    Example :
+        config_path = {
+            "path": "C:/Users/Desktop/hermes_lab/hermes_config",
+            "source": "environment_variable or configuration_file",
+        }
     """
-    path = resolve_path_from_env_config(
+    config_dict = resolve_path_from_env_config(
         env_var_name="HERMES_CONFIG_FOLDER",
         config_key="configuration_folder",
         path_description="Hermes configuration folder",
         create_if_missing=create_if_missing,
     )
-    return path
+    return config_dict
 
 
 def get_artifacts_folder(create_if_missing: bool = False):
@@ -158,15 +161,20 @@ def get_artifacts_folder(create_if_missing: bool = False):
         ConfigLoadError: if HERMES_ARTIFACTS_FOLDER environment variable isn't set
 
     Returns:
-        str: The value of HERMES_ARTIFACTS_FOLDER environment variable
+       dict: A dictionary containing the resolved path and the source of the path (environment variable or configuration file)
+    Example :
+        artefacts_path = {
+            "path": "C:/Users/Desktop/hermes_lab/hermes_artifacts",
+            "source": "environment_variable or configuration_file",
+        }
     """
-    path = resolve_path_from_env_config(
+    artefacts_dict = resolve_path_from_env_config(
         env_var_name="HERMES_ARTIFACTS_FOLDER",
         config_key="artefacts_folder",
         path_description="artifacts folder",
         create_if_missing=create_if_missing,
     )
-    return path
+    return artefacts_dict
 
 
 def get_custom_connectors_folder(create_if_missing: bool = False):
@@ -176,15 +184,20 @@ def get_custom_connectors_folder(create_if_missing: bool = False):
         ConfigLoadError: HERMES_CUSTOM_CONNECTORS_FOLDER environment variable isn't set
 
     Returns:
-        str: The value of HERMES_CUSTOM_CONNECTORS_FOLDER environment variable
+       dict: A dictionary containing the resolved path and the source of the path (environment variable or configuration file)
+    Example :
+        custom_connectors_path = {
+            "path": "C:/Users/Desktop/hermes_lab/hermes_custom_connectors",
+            "source": "environment_variable or configuration_file",
+        }
     """
-    path = resolve_path_from_env_config(
+    custom_connectors_dict = resolve_path_from_env_config(
         env_var_name="HERMES_CUSTOM_CONNECTORS_FOLDER",
         config_key="custom_connectors_folder",
         path_description="custom connectors folder",
         create_if_missing=create_if_missing,
     )
-    return path
+    return custom_connectors_dict
 
 
 def get_definition_file_path() -> pathlib.Path:

@@ -11,7 +11,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "hermes",
     "typer",
-    "questionary==1.10.0",
+    "questionary",
     "jsonschema>=4.23.0",
     "click<8.2.0",
     "omegaconf>=2.3.0",

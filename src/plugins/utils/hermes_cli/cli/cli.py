@@ -264,19 +264,6 @@ def install_connector():
         "🎯 Select connectors to install:",
         choices=connectors,
         validate=lambda x: True if x else "❌ Please select at least one connector!",
-        style=questionary.Style(
-            [
-                ("question", "bold"),
-                ("answer", "fg:#ff9d00 bold"),
-                ("pointer", "fg:#ff9d00 bold"),
-                ("highlighted", "fg:#ff9d00 bold"),
-                ("selected", "fg:#cc5454"),
-                ("separator", "fg:#cc5454"),
-                ("instruction", ""),
-                ("text", ""),
-                ("disabled", "fg:#858585 italic"),
-            ]
-        ),
     ).ask()
 
     # Handle user cancellation

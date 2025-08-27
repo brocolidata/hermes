@@ -16,6 +16,13 @@ dependencies = [
 [tool.uv]
 package = true
 
+[project.scripts]
+hermes = "cli.cli:app"
+
+[tool.uv.sources]
+hermes = { path = "../../..", editable = true }
+
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -25,10 +32,3 @@ include = ["hermes_cli/cli/json_schemas/*"]
 
 [tool.hatch.build.targets.wheel]
 include = ["hermes_cli/cli/json_schemas/*"]
-
-
-[project.scripts]
-hermes = "cli.cli:app"
-
-[tool.uv.sources]
-hermes = { path = "../../..", editable = true }

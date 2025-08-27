@@ -23,4 +23,4 @@ hermes = "cli.cli:app"
 hermes = { path = "../../..", editable = true }
 
 [tool.uv.include]
-"cli/json_schemas/*" = {}
+"hermes_cli/cli/json_schemas/*" = {}

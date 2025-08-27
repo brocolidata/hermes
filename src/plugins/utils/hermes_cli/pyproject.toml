@@ -7,7 +7,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "hermes",
     "typer",
-    "questionary",
+    "questionary==1.10.0",
     "jsonschema>=4.23.0",
     "click<8.2.0",
     "omegaconf>=2.3.0",
@@ -16,11 +16,19 @@ dependencies = [
 [tool.uv]
 package = true
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["hermes_cli/cli/json_schemas/*"]
+
+[tool.hatch.build.targets.wheel]
+include = ["hermes_cli/cli/json_schemas/*"]
+
+
 [project.scripts]
 hermes = "cli.cli:app"
 
 [tool.uv.sources]
 hermes = { path = "../../..", editable = true }
-
-[tool.uv.include]
-"hermes_cli/cli/json_schemas/*" = {}

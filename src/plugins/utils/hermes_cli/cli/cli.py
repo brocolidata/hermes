@@ -242,17 +242,16 @@ def install_connector():
     Select and install connectors for various data sources and destinations.
     """
 
-    with console.status("[bold green]🔍 Scanning for available connectors..."):
-        connectors = get_available_connectors()
-        # sources = [
-        #     f"{source_connector}_source"
-        #     for source_connector in hermes_connectors["sources"]
-        # ]
-        # destinations = [
-        #     f"{destination_connector}_destination"
-        #     for destination_connector in hermes_connectors["destinations"]
-        # ]
-        # connectors = sources + destinations
+    connectors = get_available_connectors()
+    # sources = [
+    #     f"{source_connector}_source"
+    #     for source_connector in hermes_connectors["sources"]
+    # ]
+    # destinations = [
+    #     f"{destination_connector}_destination"
+    #     for destination_connector in hermes_connectors["destinations"]
+    # ]
+    # connectors = sources + destinations
     if not connectors:
         console.print("[bold red]❌ No local connectors found[/bold red]")
         raise typer.Exit(code=1)

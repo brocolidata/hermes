@@ -17,7 +17,7 @@ dependencies = [
 package = true
 
 [project.scripts]
-hermes = "cli.cli:app"
+hermes = "hermes_cli.cli.cli:app"
 
 [tool.uv.sources]
 hermes = { path = "../../..", editable = true }

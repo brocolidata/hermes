@@ -14,6 +14,7 @@ from cli.main import (
     get_installed_hermes_connectors,
     parse_project,
 )
+from prompt_toolkit.styles import Style
 from rich import print
 from rich.console import Console
 from rich.panel import Panel
@@ -259,11 +260,25 @@ def install_connector():
     console.print(
         f"\n✅ Found [bold green]{len(connectors)}[/bold green] available connectors"
     )
+    custom_style = Style.from_dict(
+        {
+            "question": "bold",
+            "answer": "fg:#ff9d00 bold",
+            "pointer": "fg:#ff9d00 bold",
+            "highlighted": "fg:#ff9d00 bold",
+            "selected": "fg:#cc5454",
+            "separator": "fg:#cc5454",
+            "instruction": "",
+            "text": "",
+            "disabled": "fg:#858585 italic",
+        }
+    )
 
     selected_connectors = questionary.checkbox(
         "🎯 Select connectors to install:",
         choices=connectors,
         validate=lambda x: True if x else "❌ Please select at least one connector!",
+        style=custom_style,
     ).ask()
 
     # Handle user cancellation

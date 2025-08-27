@@ -262,14 +262,9 @@ def install_connector():
     custom_style = Style.from_dict(
         {
             "question": "bold",
-            "answer": "fg:#ff9d00 bold",
-            "pointer": "fg:#ff9d00 bold",
-            "highlighted": "fg:#ff9d00 bold",
-            "selected": "fg:#cc5454",
-            "separator": "fg:#cc5454",
-            "instruction": "",
-            "text": "",
-            "disabled": "fg:#858585 italic",
+            "pointer": "#ff9d00 bold",
+            "highlighted": "#ff9d00 bold",
+            "selected": "#cc5454",
         }
     )
 
@@ -277,7 +272,7 @@ def install_connector():
         "🎯 Select connectors to install:",
         choices=connectors,
         validate=lambda x: True if x else "❌ Please select at least one connector!",
-        style=custom_style,  # or remove style if unsure
+        style=custom_style,
     ).ask()
 
     # Handle  cancellation / no selection

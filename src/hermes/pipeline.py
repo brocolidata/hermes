@@ -1,8 +1,10 @@
 from itertools import product
+
 import omegaconf
-from hermes import connectors, utils, logging_utils
-from hermes.destinations import variables
+
+from hermes import connectors, logging_utils, utils
 from hermes import exceptions as hermes_exceptions
+from hermes.destinations import variables
 
 logger = logging_utils.get_logger()
 
@@ -153,7 +155,7 @@ class Pipeline:
                 )
                 self._destination_variables_cache.update(dc_destination_variables)
 
-        except Exception as e:
+        except Exception:
             ...
 
     def _process_extract_and_load(

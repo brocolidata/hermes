@@ -66,7 +66,7 @@ class CustomSource(BaseSource):
         Returns:
             typing.Callable: source connector entrypoint function
         """
-        custom_connectors_path = settings.get_custom_connectors_folder()
+        custom_connectors_path = settings.get_custom_connectors_folder()["path"]
         module_path = pathlib.Path(custom_connectors_path, self.module_file_path)
         try:
             module_obj = run_path(module_path)

@@ -3,65 +3,41 @@ name = "hermes"
 version = "0.4.1"
 description = "Lightweight Python data ingestion framework"
 readme = "README.md"
-authors = [
-    { name = "Brocoli Data", email = "contact.brocoli@gmail.com" }
-]
+authors = [{ name = "Brocoli Data", email = "contact.brocoli@gmail.com" }]
 requires-python = ">=3.12,<3.13"
-dependencies = [
-    "omegaconf>=2.3.0",
-]
+dependencies = ["omegaconf>=2.3.0"]
 [tool.uv.sources]
-custom_source = { path = "./plugins/sources/custom", editable = true}
+custom_source = { path = "./plugins/sources/custom", editable = true }
 athena_iceberg_destination = { path = "./plugins/destinations/athena_iceberg", editable = true }
-generic_object_storage_destination = { path = "./plugins/destinations/generic_object_storage", editable = true}
+generic_object_storage_destination = { path = "./plugins/destinations/generic_object_storage", editable = true }
 s3_destination = { path = "./plugins/destinations/s3", editable = true }
 local_storage_destination = { path = "./plugins/destinations/local_storage", editable = true }
-hermes_artefact_parser = { path = "./plugins/utils/hermes_artefact_parser", editable = true}
+hermes_artefact_parser = { path = "./plugins/utils/hermes_artefact_parser", editable = true }
+hermes_cli = { path = "./plugins/utils/hermes_cli", editable = true }
 
 [project.optional-dependencies]
-custom_source = [
-    "custom_source"
-]
+custom_source = ["custom_source"]
 
-athena_iceberg_destination = [
-    "athena_iceberg_destination"
-]
+athena_iceberg_destination = ["athena_iceberg_destination"]
 
-s3_destination = [
-    "generic_object_storage_destination",
-    "s3_destination"
-]
+s3_destination = ["generic_object_storage_destination", "s3_destination"]
 
 local_storage_destination = [
     "generic_object_storage_destination",
-    "local_storage_destination"
+    "local_storage_destination",
 ]
 
-ingestion_core = [
-    "pandas>=2.2.3",
-    "pyarrow>=19.0.1",
-    "requests>=2.32.3",
-]
+ingestion_core = ["pandas>=2.2.3", "pyarrow>=19.0.1", "requests>=2.32.3"]
 
-s3_destination_core = [
-    "s3fs>=2025.2.0",
-]
+s3_destination_core = ["s3fs>=2025.2.0"]
 
-athena_iceberg_destination_core = [
-    "awswrangler>=3.10.1",
-]
+athena_iceberg_destination_core = ["awswrangler>=3.10.1"]
 
-artefact_parser = [
-    "hermes_artefact_parser"
-]
+cli = ["hermes_cli"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "moto>=5.1.1",
-    "pytest>=8.3.4",
-    
-]
+dev = ["moto>=5.1.1", "pytest>=8.3.4"]

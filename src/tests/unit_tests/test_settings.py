@@ -1,24 +1,22 @@
 import os
 import tempfile
+from pathlib import Path
 
 import pytest
 
 from hermes.exceptions import ConfigLoadError
-from hermes.settings import (
-    get_artifacts_folder,
-    get_config_folder,
-    get_custom_connectors_folder,
-)
+from hermes.settings import (get_artifacts_folder, get_config_folder,
+                             get_custom_connectors_folder)
 
 
 def test_get_config_folder_exception(monkeypatch):
     # Remove environment variable and mock config file loading to raise FileNotFoundError
     monkeypatch.delenv("HERMES_CONFIG_FOLDER", raising=False)
 
-    def mock_load_config_file():
+    def mock_load_hermes_config_file():
         raise FileNotFoundError("Config file not found")
 
-    monkeypatch.setattr("hermes.settings.load_config_file", mock_load_config_file)
+    monkeypatch.setattr("hermes.settings.load_hermes_config_file", mock_load_hermes_config_file)
 
     with pytest.raises(ConfigLoadError):
         get_config_folder()
@@ -28,10 +26,10 @@ def test_get_artifacts_folder_exception(monkeypatch):
     # Remove environment variable and mock config file loading to raise FileNotFoundError
     monkeypatch.delenv("HERMES_ARTIFACTS_FOLDER", raising=False)
 
-    def mock_load_config_file():
+    def mock_load_hermes_config_file():
         raise FileNotFoundError("Config file not found")
 
-    monkeypatch.setattr("hermes.settings.load_config_file", mock_load_config_file)
+    monkeypatch.setattr("hermes.settings.load_hermes_config_file", mock_load_hermes_config_file)
 
     with pytest.raises(ConfigLoadError):
         get_artifacts_folder()
@@ -41,10 +39,10 @@ def test_get_custom_connectors_folder_exception(monkeypatch):
     # Remove environment variable and mock config file loading to raise FileNotFoundError
     monkeypatch.delenv("HERMES_CUSTOM_CONNECTORS_FOLDER", raising=False)
 
-    def mock_load_config_file():
+    def mock_load_hermes_config_file():
         raise FileNotFoundError("Config file not found")
 
-    monkeypatch.setattr("hermes.settings.load_config_file", mock_load_config_file)
+    monkeypatch.setattr("hermes.settings.load_hermes_config_file", mock_load_hermes_config_file)
 
     with pytest.raises(ConfigLoadError):
         get_custom_connectors_folder()
@@ -59,7 +57,7 @@ def test_get_config_folder_returns_dict(monkeypatch):
         assert isinstance(result, dict)
         assert "path" in result
         assert "source" in result
-        assert str(result["path"]) == temp_dir
+        assert Path(result["path"]).resolve() == Path(temp_dir).resolve()
         assert result["source"] == "environment_variable"
 
 
@@ -72,7 +70,7 @@ def test_get_artifacts_folder_returns_dict(monkeypatch):
         assert isinstance(result, dict)
         assert "path" in result
         assert "source" in result
-        assert str(result["path"]) == temp_dir
+        assert Path(result["path"]).resolve() == Path(temp_dir).resolve()
         assert result["source"] == "environment_variable"
 
 
@@ -85,7 +83,7 @@ def test_get_custom_connectors_folder_returns_dict(monkeypatch):
         assert isinstance(result, dict)
         assert "path" in result
         assert "source" in result
-        assert str(result["path"]) == temp_dir
+        assert Path(result["path"]).resolve() == Path(temp_dir).resolve()
         assert result["source"] == "environment_variable"
 
 

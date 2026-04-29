@@ -27,7 +27,10 @@ class NodeTypes(str, enum.Enum):
     pipelines = "pipelines"
 
 
-def load_config_file():
+def get_hermes_project_folder_from_env_var():
+    return os.getenv('HERMES_PROJECT_PATH')
+
+def load_hermes_config_file():
     """Load the configuration file for the Hermes CLI"""
     config_file = get_hermes_config_file_path()
     with open(config_file, "r") as f:
@@ -68,7 +71,7 @@ def resolve_path_from_env_config(
     else:
         #! 2. Try config file
         try:
-            config = load_config_file()
+            config = load_hermes_config_file()
             if not config:
                 raise ConfigLoadError(
                     process_step=f"load {path_description}",
@@ -93,7 +96,8 @@ def resolve_path_from_env_config(
 
     path = path_dict["path"]
     if not path.is_absolute():
-        path = pathlib.Path(Path.cwd(), path)
+        project_root = get_hermes_project_folder_from_env_var()
+        path = pathlib.Path(project_root, path)
 
     path = path.resolve()
 
@@ -123,7 +127,7 @@ def resolve_path_from_env_config(
 
 def get_hermes_config_file_path() -> pathlib.Path | None:
     """Get the full path of hermes_config.yml configuration file"""
-    project_root = Path.cwd().resolve()
+    project_root = get_hermes_project_folder_from_env_var()
     config_file = pathlib.Path(project_root, HERMES_CONFIG_FILE)
     if not config_file.exists():
         return None
@@ -170,7 +174,7 @@ def get_artifacts_folder(create_if_missing: bool = False):
     """
     artefacts_dict = resolve_path_from_env_config(
         env_var_name="HERMES_ARTIFACTS_FOLDER",
-        config_key="artefacts_folder",
+        config_key="artifacts_folder",
         path_description="artifacts folder",
         create_if_missing=create_if_missing,
     )

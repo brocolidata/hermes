@@ -6,12 +6,16 @@ import omegaconf
 from hermes.utils import get_definitions_from_file
 
 
-@patch("hermes.utils.settings.get_config_folder")
-@patch("pathlib.Path.rglob")
 @patch("hermes.utils.omegaconf.OmegaConf.load")
-def test_load_definitions(mock_omegaconf_load, mock_rglob, mock_get_config_folder):
+@patch("pathlib.Path.rglob")
+@patch("hermes.utils.settings.get_config_folder")
+@patch("hermes.settings.get_definition_file_path")
+def test_load_definitions(mock_get_definition_file_path, mock_get_config_folder, mock_rglob, mock_omegaconf_load):
     """Test the load_definitions function."""
 
+    # Mock definitions file path
+    mock_get_definition_file_path.return_value = "/mock/definitions.json"
+   
     # Mock the config folder path
     mock_get_config_folder.return_value = "/mock/config"
 

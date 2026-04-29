@@ -5,8 +5,8 @@ from runpy import run_path
 
 import omegaconf
 import pandas as pd
-
 from custom_source.exceptions import CustomSourceError
+
 from hermes import settings
 from hermes.sources.utils import BaseSource
 
@@ -27,9 +27,6 @@ class CustomSource(BaseSource):
         self.extractor_name = self.config.extractor
         self.module_file_path = self.config.module_path
         self.extractor_obj = self._get_extractor()
-        self._kwargs_destination_variables_map = (
-            self._map_output_tables_kwargs_to_destination_variables()
-        )
 
     def _get_table_config(
         self, source_table_name: str
@@ -85,33 +82,15 @@ class CustomSource(BaseSource):
             )
         return extractor_obj
 
-    def _map_output_tables_kwargs_to_destination_variables(self):
-        dc_map = {}
-        for output_table in self.output_tables:
-            dc_map[output_table.name] = {
-                kwak: (kwav if kwav.startswith("$destinations.") else None)
-                for kwak, kwav in output_table.kwargs.items()
-            }
-        return dc_map
-
-    def _process_table_kwargs(self, table_kwargs: dict, pipeline_cache: dict) -> dict:
-        updated_table_kwargs = omegaconf.OmegaConf.create(
-            {
-                kwan: (
-                    pipeline_cache[kwav] if kwav.startswith("$destinations.") else kwav
-                )
-                for kwan, kwav in table_kwargs
-            }
-        )
-        return updated_table_kwargs
 
     def extract(
-        self, source_table_name: str, pipeline_cache: dict = {}
+        self, source_table_name: str, run_context: dict
     ) -> dict[str, typing.Any]:
         """Run the extract method of the custom extractor
 
         Args:
             source_table_name (str): name of the source table
+            run_contect (dict): context of the pipeline run
 
         Raises:
             CustomSourceError: if any exception is raised during the call to the extract method
@@ -120,11 +99,7 @@ class CustomSource(BaseSource):
             dict[str, typing.Any]: outputs of the extract method, mapping of source table name to raw data
         """
         table_config = self._get_table_config(source_table_name)
-        kwargs = (
-            self._process_table_kwargs(table_config.kwargs, pipeline_cache)
-            if pipeline_cache
-            else table_config.kwargs
-        )
+        kwargs = omegaconf.OmegaConf.to_container(table_config.kwargs) | {"run_context":run_context}
         try:
             extractor = self.extractor_obj()
             dc_outputs = extractor.extract(**kwargs)

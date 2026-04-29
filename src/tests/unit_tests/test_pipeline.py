@@ -10,7 +10,7 @@ PIPELINE_NAME = "sync_float_rates"
 
 
 @pytest.fixture
-def pipeline_config(demo_config):
+def pipeline_config(set_hermes_project_folder, demo_config):
     pipeline_config = list(
         filter(lambda p: p.name == PIPELINE_NAME, demo_config["pipelines"])
     )[0]

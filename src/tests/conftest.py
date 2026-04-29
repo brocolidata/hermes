@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import pathlib
 from unittest.mock import mock_open, patch
@@ -15,6 +16,19 @@ def set_aws_env_vars(monkeypatch):
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "test-secret-key")
     monkeypatch.setenv("AWS_DEFAULT_REGION", "eu-west-3")
 
+    yield  # Provide the environment setup to tests
+
+
+@pytest.fixture
+def set_hermes_project_folder(monkeypatch):
+    """Fixture to set environment variables for tests."""
+    current_dir = pathlib.Path(__file__).parent.as_posix()
+
+    monkeypatch.setenv(
+        # "HERMES_CONFIG_FOLDER", "tests/assets/config/test_athena_iceberg"
+        "HERMES_PROJECT_PATH",
+        f"{current_dir}/assets/test_project",
+    )
     yield  # Provide the environment setup to tests
 
 
@@ -101,3 +115,12 @@ def demo_config():
 def test_folder():
     current_dir = pathlib.Path(__file__).parent.as_posix()
     return current_dir
+
+@pytest.fixture
+def run_context_timestamps():
+    now = dt.datetime.now()
+    tomorrow = now + dt.timedelta(days=1)
+    return {
+        "start_timestamp": now.timestamp(),
+        "end_timestamp": tomorrow.timestamp()
+    }

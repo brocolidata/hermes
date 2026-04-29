@@ -26,9 +26,11 @@ def test_athena_iceberg(
     mock_athena_to_iceberg,
     mock_custom_source_extract,
     get_processed_float_rates_test_data,
+    set_hermes_project_folder,
 ):
     pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
-    pipeline.run()
+    pipeline_run = pipeline.create_run()
+    pipeline_run.run()
 
     # Assert successes are recorded in the Pipeline object
     SUCCESSES = [
@@ -38,7 +40,7 @@ def test_athena_iceberg(
             "destination_name": "demo_athena_iceberg",
         }
     ]
-    assert pipeline.successes == SUCCESSES
+    assert pipeline_run.successes == SUCCESSES
 
     # Ensure function was called once
     mock_athena_to_iceberg.assert_called_once()
@@ -69,17 +71,22 @@ def test_athena_iceberg_exception(
     mock_athena_to_iceberg,
     mock_custom_source_extract,
     get_processed_float_rates_test_data,
+    set_hermes_project_folder,
+    run_context_timestamps
+    
 ):
     mock_athena_to_iceberg.side_effect = BotoCoreError
     pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
-    pipeline.run()
+    pipeline_run = pipeline.create_run(run_context=run_context_timestamps)
+    pipeline_run.run()
     ERRORS = [
         {
             "source_name": "float_rates",
             "source_table_name": "dirham_change_rates",
             "destination_name": "demo_athena_iceberg",
             "error_type": "AthenaIcebergDestinationError",
-            "error_message": "Athena Iceberg: error during load to raw_glue_database.dirham_change_rates.\n            table location: s3://a-bucket/table-location/float_rates/dirham_change_rates/, temp path: s3://a-bucket/hermes-temp-path/float_rates/dirham_change_rates/\n            error : An unspecified error occurred\n        ",
+            "error_message": "Athena Iceberg: error during load to raw_glue_database.dirham_change_rates.\n            table location: s3://a-bucket/table-location/float_rates/dirham_change_rates/, temp path: s3://a-bucket/hermes-temp-path/float_rates/dirham_change_rates/\n            error : An unspecified error occurred",
+            "run_context": run_context_timestamps
         }
     ]
-    assert pipeline.errors == ERRORS
+    assert pipeline_run.errors == ERRORS

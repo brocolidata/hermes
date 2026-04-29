@@ -57,7 +57,7 @@ def test_custom_source_initialization(test_source_config):
 
 
 @patch.object(CustomSource, "_get_extractor")
-def test_custom_source_extract(mock_get_extractor, test_source_config, mock_extractor):
+def test_custom_source_extract(mock_get_extractor, test_source_config, mock_extractor, run_context_timestamps):
     """Test the extract method of CustomSource."""
     # Ensure `_get_extractor()` returns a function that returns `mock_extractor`
     mock_get_extractor.return_value = lambda: mock_extractor
@@ -66,11 +66,13 @@ def test_custom_source_extract(mock_get_extractor, test_source_config, mock_extr
     source = CustomSource(test_source_config)
 
     # Call extract
-    extracted_data = source.extract("float_rates")
+    extracted_data = source.extract("float_rates", run_context=run_context_timestamps)
 
     # Validate extraction call
     mock_extractor.extract.assert_called_once_with(
-        endpoint="https://api.exchangeratesapi.io/latest"
+        endpoint="https://api.exchangeratesapi.io/latest",
+        run_context=run_context_timestamps
+        
     )
 
     # Validate extracted data structure
@@ -104,41 +106,41 @@ def test_custom_source_process_data(
     assert processed_data.shape == (2, 2)  # Expecting 2 rows (USD, EUR) and 2 columns
 
 
-def test_custom_source_extractor_module_not_found(test_source_config, test_folder):
+def test_custom_source_extractor_module_not_found(set_hermes_project_folder, test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
     failing_source_config.config.extractor = "DoesNotExist"
     ERROR_MSG = f"""Custom Source: error during initialization for source float_rates_source.
-            error : DoesNotExist function cannot be found in {test_folder}/assets/custom/change_rates.py
+            error : DoesNotExist function cannot be found in {test_folder}/assets/test_project/custom_connectors/change_rates.py
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
         CustomSource(failing_source_config)
 
 
-def test_custom_source_extractor_not_found(test_source_config, test_folder):
+def test_custom_source_extractor_not_found(set_hermes_project_folder, test_source_config, test_folder):
     """Test that CustomSource raises an exception when the extractor function is not found."""
     failing_source_config = test_source_config.copy()
     failing_source_config.config.extractor = "DoesNotExist"
     ERROR_MSG = f"""Custom Source: error during initialization for source float_rates_source.
-            error : DoesNotExist function cannot be found in {test_folder}/assets/custom/change_rates.py
+            error : DoesNotExist function cannot be found in {test_folder}/assets/test_project/custom_connectors/change_rates.py
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
         CustomSource(failing_source_config)
 
 
 @patch.object(CustomSource, "_get_extractor", return_value=lambda: MagicMock())
-def test_custom_source_table_not_found(mock_get_extractor, test_source_config):
+def test_custom_source_table_not_found(mock_get_extractor, test_source_config, run_context_timestamps):
     """Test that CustomSource raises an exception when table config is missing."""
     source = CustomSource(test_source_config)
     ERROR_MSG = """Custom Source: error during extraction for source float_rates_source.
             error : missing_table table configuration cannot be found in float_rates_source output tables
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
-        source.extract("missing_table")
+        source.extract("missing_table", run_context=run_context_timestamps)
 
 
 @patch.object(CustomSource, "_get_extractor")
-def test_custom_source_extract_exception(mock_get_extractor, test_source_config):
+def test_custom_source_extract_exception(mock_get_extractor, test_source_config, run_context_timestamps):
     """Test that CustomSource.extract raises an exception on extractor failure."""
     mock_extractor = MagicMock()
     mock_extractor.extract.side_effect = Exception("Extraction failed")
@@ -148,7 +150,7 @@ def test_custom_source_extract_exception(mock_get_extractor, test_source_config)
             error : Extraction failed
         """
     with pytest.raises(CustomSourceError, match=ERROR_MSG):
-        source.extract("float_rates")
+        source.extract("float_rates", run_context=run_context_timestamps)
 
 
 @patch.object(CustomSource, "_get_extractor")

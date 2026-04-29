@@ -56,6 +56,7 @@ def test_multi_destination_pipelines(
     set_aws_env_vars,
     mock_fsspec_open,
     mock_athena_to_iceberg,
+    set_hermes_project_folder,
     pipeline_name,
 ):
     hermes.run_pipeline(pipeline_name)

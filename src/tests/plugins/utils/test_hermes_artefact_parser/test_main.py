@@ -5,12 +5,10 @@ import omegaconf
 import pytest
 
 from hermes.exceptions import ConfigLoadError
-from plugins.utils.hermes_cli.cli.main import (
-    load_and_merge_configs,
-    parse_project,
-    validate_definition_file,
-    write_definitions,
-)
+from plugins.utils.hermes_cli.cli.main import (load_and_merge_configs,
+                                               parse_project,
+                                               validate_definition_file,
+                                               write_definitions)
 
 
 @pytest.fixture
@@ -46,7 +44,7 @@ def invalid_definitions():
 @patch("pathlib.Path.rglob")
 @patch("omegaconf.OmegaConf.load")
 @patch("hermes.settings")
-def test_load_and_merge_configs(mock_settings, mock_omegaconf_load, mock_rglob):
+def test_load_and_merge_configs(mock_settings, mock_omegaconf_load, mock_rglob, set_hermes_project_folder):
     mock_settings.get_config_folder.return_value = pathlib.Path("/mock/config")
     mock_rglob.return_value = [pathlib.Path("a.yml"), pathlib.Path("b.yml")]
 
@@ -111,12 +109,11 @@ def test_validate_definition_file_invalid(mock_get_schema, invalid_definitions):
     with pytest.raises(ConfigLoadError):
         validate_definition_file(invalid_definitions)
 
-
 @patch("plugins.utils.hermes_cli.cli.main.write_definitions")
 @patch("plugins.utils.hermes_cli.cli.main.validate_definition_file")
 @patch("plugins.utils.hermes_cli.cli.main.load_and_merge_configs")
 @patch("hermes.settings")
-def test_parse_project_success(mock_settings, mock_load, mock_validate, mock_write):
+def test_parse_project_success(mock_settings, mock_load, mock_validate, mock_write, set_hermes_project_folder):
     mock_load.return_value = {"sources": [], "destinations": [], "pipelines": []}
     mock_settings.get_config_folder.return_value = pathlib.Path("/mock/config")
     mock_settings.get_artifacts_folder.return_value = pathlib.Path("/mock/artifacts")

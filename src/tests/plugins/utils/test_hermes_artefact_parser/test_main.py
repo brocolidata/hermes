@@ -43,9 +43,9 @@ def invalid_definitions():
 
 @patch("pathlib.Path.rglob")
 @patch("omegaconf.OmegaConf.load")
-@patch("hermes.settings")
-def test_load_and_merge_configs(mock_settings, mock_omegaconf_load, mock_rglob, set_hermes_project_folder):
-    mock_settings.get_config_folder.return_value = pathlib.Path("/mock/config")
+@patch("hermes.settings.get_config_folder")
+def test_load_and_merge_configs(mock_get_config_folder, mock_omegaconf_load, mock_rglob, set_hermes_project_folder):
+    mock_get_config_folder.return_value = {"path":pathlib.Path("/mock/config")}
     mock_rglob.return_value = [pathlib.Path("a.yml"), pathlib.Path("b.yml")]
 
     mock_omegaconf_load.side_effect = [
@@ -109,17 +109,6 @@ def test_validate_definition_file_invalid(mock_get_schema, invalid_definitions):
     with pytest.raises(ConfigLoadError):
         validate_definition_file(invalid_definitions)
 
-@patch("plugins.utils.hermes_cli.cli.main.write_definitions")
-@patch("plugins.utils.hermes_cli.cli.main.validate_definition_file")
-@patch("plugins.utils.hermes_cli.cli.main.load_and_merge_configs")
-@patch("hermes.settings")
-def test_parse_project_success(mock_settings, mock_load, mock_validate, mock_write, set_hermes_project_folder):
-    mock_load.return_value = {"sources": [], "destinations": [], "pipelines": []}
-    mock_settings.get_config_folder.return_value = pathlib.Path("/mock/config")
-    mock_settings.get_artifacts_folder.return_value = pathlib.Path("/mock/artifacts")
-    mock_settings.get_custom_connectors_folder.return_value = pathlib.Path(
-        "/mock/custom"
-    )
-
+def test_parse_project_success(set_hermes_project_folder):
     result = parse_project()
     assert result is True

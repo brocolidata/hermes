@@ -1,0 +1,42 @@
+sources:
+  - name: float_rates
+    description: |
+      An API with float rates data
+    type: custom
+    config: 
+      extractor: FloatRatesSourceExtractor
+      module_path: "change_rates.py"
+      tables:
+        - name: dirham_change_rates
+          data_key: float_rates
+          kwargs: 
+            endpoint: 'https://www.floatrates.com/daily/mad.json'
+
+destinations:
+  - name: landing_zone
+    description: |
+      A S3 bucket used for landing raw data
+    type: s3
+    config:
+      format: json
+      bucket: a-bucket
+  - name: demo_athena_iceberg
+    description: |
+      A Google Cloud Storage destination for testing purposes
+    type: athena_iceberg
+    config:
+      glue_database: raw_glue_database
+      workgroup: hermes_workgroup
+      table_location: s3://a-bucket/table-location
+      temp_path: s3://a-bucket/temp-path
+      
+pipelines:
+  - name: sync_float_rates
+    sources: 
+      - name: float_rates
+        tables: 
+          - dirham_change_rates
+    destinations: 
+      - landing_zone
+      - demo_athena_iceberg
+    schedule: '0 20 * * 1-5'

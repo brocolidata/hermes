@@ -12,5 +12,6 @@ def run_pipeline(pipeline_name: str):
     """
     logger.info(f"Running {pipeline_name} pipeline...")
     pipeline = pipeline_utils.get_pipeline(pipeline_name)
-    pipeline.run()
+    pipeline_run = pipeline.create_run()
+    pipeline_run.run()
     logger.info(f"Successfully run {pipeline_name} pipeline")

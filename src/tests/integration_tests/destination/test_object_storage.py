@@ -26,9 +26,11 @@ def test_object_storage(
     mock_custom_source_extract,
     mock_fsspec_open,
     get_dirham_change_rates_data,
+    set_hermes_project_folder
 ):
     pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
-    pipeline.run()
+    pipeline_run = pipeline.create_run()
+    pipeline_run.run()
 
     # Assert successes are recorded in the Pipeline object
     SUCCESSES = [
@@ -38,7 +40,7 @@ def test_object_storage(
             "destination_name": "landing_zone",
         }
     ]
-    assert pipeline.successes == SUCCESSES
+    assert pipeline_run.successes == SUCCESSES
 
     mock_fsspec, mock_file_instance = mock_fsspec_open  # Unpack fixture
 
@@ -69,22 +71,29 @@ def test_object_storage_exception(
     mock_custom_source_extract,
     mock_fsspec_open,
     get_dirham_change_rates_data,
+    set_hermes_project_folder,
+    run_context_timestamps
 ):
     mocked_open, _ = mock_fsspec_open
     mocked_open.side_effect = BotoCoreError
     pipeline = hermes.get_pipeline(TEST_PIPELINE_NAME)
-    pipeline.run()
+    pipeline_run = pipeline.create_run(run_context=run_context_timestamps)
+    pipeline_run.run()
     ERRORS = [
-        {
-            "source_name": "float_rates",
-            "source_table_name": "dirham_change_rates",
-            "destination_name": "landing_zone",
-            "error_type": "ObjectStorageDestinationError",
-            "error_message": "Object Storage: error while loading data to landing_zone, located at s3://a-bucket/float_rates/dirham_change_rates/dirham_change_rates_04_12_2025_12_42_33.json.\n            error : An unspecified error occurred\n        ",
-        }
-    ]
-    assert pipeline.errors[0]["source_name"] == ERRORS[0]["source_name"]
-    assert pipeline.errors[0]["source_table_name"] == ERRORS[0]["source_table_name"]
-    assert pipeline.errors[0]["destination_name"] == ERRORS[0]["destination_name"]
-    assert pipeline.errors[0]["error_type"] == ERRORS[0]["error_type"]
-    # assert pipeline.errors == ERRORS
+  {
+    "source_name": "float_rates",
+    "source_table_name": "dirham_change_rates",
+    "destination_name": "landing_zone",
+    "error_type": "ObjectStorageDestinationError",
+    "error_message": "Object Storage: error while loading data to landing_zone, located at s3://a-bucket/float_rates/dirham_change_rates/dirham_change_rates_04_26_2026_18_44_12.json.\n            error : An unspecified error occurred",
+    "run_context": {
+      "start_timestamp": 1777225451.916881,
+      "end_timestamp": 1777311851.916881
+    }
+  }
+]
+    assert pipeline_run.errors[0]["source_name"] == ERRORS[0]["source_name"]
+    assert pipeline_run.errors[0]["source_table_name"] == ERRORS[0]["source_table_name"]
+    assert pipeline_run.errors[0]["destination_name"] == ERRORS[0]["destination_name"]
+    assert pipeline_run.errors[0]["error_type"] == ERRORS[0]["error_type"]
+    # assert pipeline_run.errors == ERRORS

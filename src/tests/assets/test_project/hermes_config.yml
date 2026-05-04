@@ -1,0 +1,4 @@
+project_paths:
+  configuration_folder: configuration
+  artifacts_folder: artifacts
+  custom_connectors_folder: custom_connectors

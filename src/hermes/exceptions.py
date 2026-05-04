@@ -59,16 +59,3 @@ class ConfigLoadError(HermesError):
             error : {error}
         """
         super().__init__(self.message)
-
-
-class DestinationVariableError(HermesError):
-    """Raised when there is an issue related to destination variables."""
-
-    def __init__(self, connector_name, error_message):
-        self.connector_name = connector_name
-        self.error_message = error_message
-        self.message = self.get_message()
-        super().__init__(self.message)
-
-    def get_message(self):
-        return f"{self.connector_name}: {self.error_message}"

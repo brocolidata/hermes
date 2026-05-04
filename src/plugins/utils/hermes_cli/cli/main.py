@@ -53,24 +53,6 @@ def get_pyproject_toml_path() -> Optional[Path]:
             return pyproject_path
 
 
-def load_pyproject_toml():
-    """
-    Load the pyproject.toml file if it exists.
-
-    Returns:
-        dict: The contents of the pyproject.toml file.
-    """
-    import tomllib
-
-    pyproject_path = get_pyproject_toml_path()
-    if pyproject_path:
-        with open(pyproject_path, "rb") as f:
-            pyproject_data = tomllib.load(f)
-        return pyproject_data
-    else:
-        logger.warning("No pyproject.toml file found.")
-        return {}
-
 
 def get_available_connectors():
     """

@@ -1,0 +1,28 @@
+site_name: Hermes docs
+site_url: https://brocolidata.github.io/hermes
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Configuration Reference:
+      - Overview: reference/configuration.md
+      - Sources:
+          - Custom Source: reference/sources/custom.md
+      - Destinations:
+          - Object Storage: reference/destinations/object_storage.md
+          - Athena Iceberg: reference/destinations/athena_iceberg.md
+      - Pipelines: reference/pipelines.md

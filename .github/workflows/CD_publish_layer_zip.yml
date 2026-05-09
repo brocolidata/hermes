@@ -24,14 +24,12 @@ jobs:
           working-directory: src
 
       - name: Install project dependencies
-        working-directory: src
         run: >
           uv sync 
           --all-extras 
           --all-groups
 
       - name: Export Requirements
-        working-directory: src
         run: >
           uv export 
           --extra custom_source
@@ -44,11 +42,9 @@ jobs:
           -o lambda_layer_requirements.txt
 
       - name: Create Lambda Layer directory
-        working-directory: src
         run: mkdir -p lambda_layer/python
 
       - name: Install Dependencies for Layer
-        working-directory: src
         run: >
           uv pip install 
           --target=lambda_layer/python 
@@ -58,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python
-          path: src/lambda_layer/
+          path: lambda_layer/
           overwrite: true
           if-no-files-found: error
           include-hidden-files: true

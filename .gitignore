@@ -1,11 +1,22 @@
+# Python-generated files
 .DS_Store
-# poetry.lock
 __pycache__/
 .pytest_cache
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
 
 src/lambda_layer
 src/lambda_layer.zip
 src/lambda_layer_requirements.txt
 
 TODO.md
+
+
+
 

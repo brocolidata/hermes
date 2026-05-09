@@ -6,7 +6,9 @@ on:
       - "opened"
       - "synchronize"
     paths:
-      - 'src/**'
+      - 'hermes/**'
+      - 'plugins/**'
+      - 'tests/**'
 
 jobs:
 
@@ -21,17 +23,17 @@ jobs:
         uses: astral-sh/setup-uv@v2
       - name: 'Install dependencies'
         id: install_dependencies
-        working-directory: ${{ github.workspace }}/src
+        working-directory: ${{ github.workspace }}
         run: |
           uv sync --all-extras --all-groups --all-packages
       - name: 'Run tests'
         id: run_tests
         if: steps.install_dependencies.outcome == 'success'
-        working-directory: ${{ github.workspace }}/src/tests
+        working-directory: ${{ github.workspace }}/tests
         run: |
           uv run pytest --junit-xml pytest_.xml
       - name: 'Publish tests results'
         if: success() || failure()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          files: "${{ github.workspace }}/src/tests/pytest_.xml"
+          files: "${{ github.workspace }}/tests/pytest_.xml"

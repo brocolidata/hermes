@@ -187,11 +187,3 @@ Hermes is an open-source project and contributions are welcome.
 Repository:
 
 [brocolidata/hermes](https://github.com/brocolidata/hermes?utm_source=chatgpt.com)
-
----
-
-## ⚠️ Alpha Status
-
-Hermes is under active development.
-
-Breaking changes may occur as the framework evolves.

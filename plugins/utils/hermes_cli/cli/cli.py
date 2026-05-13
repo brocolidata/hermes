@@ -1,3 +1,4 @@
+import json
 import logging  # Import the logging module
 import os
 import platform
@@ -348,19 +349,29 @@ def debug(
 
 
 @pipeline_app.command("run")
-def run_pipeline(name: str):
+def run_pipeline(
+    name: str,
+    context: Annotated[
+        Optional[str],
+        typer.Option("--context", "-c", help="Runtime context as JSON string, e.g. '{\"key\": \"value\"}'"),
+    ] = None,
+):
     """Run Pipeline"""
     definitions = utils.get_definitions_from_file()
     available_pipelines = [pipeline.name for pipeline in definitions.pipelines]
     if name in available_pipelines:
         try:
+            run_context = json.loads(context) if context else {}
             pipeline = get_pipeline(name)
             print(f"[bold green]Running pipeline:[/bold green] {name}")
-            pipeline_run = pipeline.create_run()
+            pipeline_run = pipeline.create_run(run_context=run_context)
             result = pipeline_run.run()
             print(f"[bold green]Pipeline {name} completed successfully![/bold green]")
             if result["errors"]:
                 print(f"[bold yellow]Errors:[/bold yellow] {result['errors']}")
+        except json.JSONDecodeError as e:
+            print(f"[bold red]Invalid JSON in --context:[/bold red] {e}")
+            raise typer.Exit(code=1)
         except Exception as e:
             print(f"Error running pipeline {name}: {e}")
             raise typer.Exit(code=1)

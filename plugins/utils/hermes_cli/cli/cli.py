@@ -356,8 +356,8 @@ def run_pipeline(name: str):
         try:
             pipeline = get_pipeline(name)
             print(f"[bold green]Running pipeline:[/bold green] {name}")
-            result = pipeline.create_run()
-            result.run()
+            pipeline_run = pipeline.create_run()
+            result = pipeline_run.run()
             print(f"[bold green]Pipeline {name} completed successfully![/bold green]")
             if result["errors"]:
                 print(f"[bold yellow]Errors:[/bold yellow] {result['errors']}")

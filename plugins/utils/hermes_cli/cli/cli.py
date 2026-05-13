@@ -290,7 +290,7 @@ def install_connector():
     typer.echo(f"Selected connectors: {connectors_str}")
 
     # Build installation URL
-    github_url = "https://github.com/brocolidata/hermes.git@refs/pull/36/head"
+    github_url = "https://github.com/brocolidata/hermes.git"
     connectors_install_url = (
         f'uv pip install "git+{github_url}#subdirectory=src["{connectors_str}"]"'
     )

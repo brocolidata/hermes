@@ -356,9 +356,11 @@ def run_pipeline(name: str):
         try:
             pipeline = get_pipeline(name)
             print(f"[bold green]Running pipeline:[/bold green] {name}")
-            pipeline.run()
+            result = pipeline.create_run()
+            result.run()
             print(f"[bold green]Pipeline {name} completed successfully![/bold green]")
-
+            if result["errors"]:
+                print(f"[bold yellow]Errors:[/bold yellow] {result['errors']}")
         except Exception as e:
             print(f"Error running pipeline {name}: {e}")
             raise typer.Exit(code=1)

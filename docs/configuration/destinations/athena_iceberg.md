@@ -1,4 +1,3 @@
-
 # ❄️ Athena Iceberg Destination
 
 This destination loads data into an **Apache Iceberg table** using AWS Athena.

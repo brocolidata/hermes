@@ -13,7 +13,7 @@ By the end, you will:
 ## 1. Installation
 
 ```bash
-pip install "git+https://github.com/astral-sh/ruff"
+uv pip install "hermes[cli] @ git+https://github.com/brocolidata/hermes.git""
 ```
 
 ---
@@ -37,7 +37,7 @@ This will:
 ```bash
 .
 ├── configuration/
-├── artefacts/
+├── artifacts/
 ├── custom_connectors/
 └── hermes_config.yml
 ```
@@ -47,7 +47,7 @@ This will:
 ```yaml
 project_paths:
   configuration_folder: ./configuration
-  artefacts_folder: ./artefacts
+  artifacts_folder: ./artifacts
   custom_connectors_folder: ./custom_connectors
 ```
 
@@ -93,7 +93,7 @@ destinations:
     type: local_storage
     config:
       format: json
-      bucket: ./artefacts/data
+      bucket: ./artifacts/data
 ```
 
 ---
@@ -158,63 +158,14 @@ Pipeline currency_pipeline completed successfully!
 Your data is now available in:
 
 ```bash
-./artefacts/data/
+./artifacts/data/
 ```
 
 Example:
 
 ```bash
-artefacts/data/rates.json
+artifacts/data/rates.json
 ```
-
----
-
-## 🔍 Useful CLI Commands
-
-### List available pipelines
-
-```bash
-hermes pipeline list
-```
-
----
-
-### Debug your environment
-
-```bash
-hermes debug
-```
-
-This shows:
-
-* Installed connectors
-* Configuration paths
-* System information
-
----
-
-### Install connectors
-
-```bash
-hermes install
-```
-
-Interactive selection of available connectors.
-
----
-
-## 🎉 Success!
-
-You just ran your first Hermes pipeline.
-
----
-
-## 🧠 What’s Next?
-
-* Explore the **Configuration Reference**
-* Build more advanced sources
-* Use cloud destinations like S3 or Athena Iceberg
-
 ---
 
 ## 🛠️ Manual Setup (Optional)
@@ -223,8 +174,17 @@ If you prefer not to use the CLI, you can manually define:
 
 ```bash
 export HERMES_CONFIG_FOLDER=./configuration
-export HERMES_ARTIFACTS_FOLDER=./artefacts
+export HERMES_ARTIFACTS_FOLDER=./artifacts
 export HERMES_CUSTOM_CONNECTORS_FOLDER=./custom_connectors
 ```
 
 However, using `hermes init` is recommended.
+
+
+---
+
+## 🧠 What’s Next?
+
+* Explore the **Configuration Reference**
+* Build more advanced sources
+* Use cloud destinations like S3 or Athena Iceberg

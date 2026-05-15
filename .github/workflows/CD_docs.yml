@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - "docs/**"
+      - mkdocs.yml
   workflow_dispatch:
 
 permissions:

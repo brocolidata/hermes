@@ -293,7 +293,7 @@ def install_connector():
     # Build installation URL
     github_url = "https://github.com/brocolidata/hermes.git"
     connectors_install_url = (
-        f'uv pip install "git+{github_url}#subdirectory=src["{connectors_str}"]"'
+        f'uv pip install "git+{github_url}["{connectors_str}"]"'
     )
     typer.echo(f"Command: {connectors_install_url}")
     try:

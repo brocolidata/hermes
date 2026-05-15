@@ -85,7 +85,7 @@ destinations:
     type: local_storage
     config:
       format: json
-      bucket: ./artefacts/data
+      bucket: ./artifacts/data
 
 pipelines:
   - name: currency_pipeline
@@ -95,7 +95,7 @@ pipelines:
     destinations:
       - local_output
     schedule: "0 12 * * *"
-````
+```
 
 ---
 
@@ -154,11 +154,8 @@ hermes debug
 ## 📚 Documentation
 
 * [Getting Started](getting_started.md)
-* [Configuration Overview](reference/configuration.md)
-* [Custom Source](reference/sources/custom.md)
-* [Object Storage Destination](reference/destinations/object_storage.md)
-* [Athena Iceberg Destination](reference/destinations/athena_iceberg.md)
-* [Pipelines](reference/pipelines.md)
+* [Configuration Overview](configuration/configuration.md)
+* [CLI reference](reference/cli.md)
 
 ---
 

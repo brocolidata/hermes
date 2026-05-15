@@ -17,8 +17,8 @@ destinations:
     type: local_storage
     config:
       format: json
-      bucket: ./artefacts/data
-````
+      bucket: ./artifacts/data
+```
 
 ---
 

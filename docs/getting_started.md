@@ -13,7 +13,7 @@ By the end, you will:
 ## 1. Installation
 
 ```bash
-uv pip install "hermes[cli] @ git+https://github.com/brocolidata/hermes.git""
+uv pip install "hermes[cli] @ git+https://github.com/brocolidata/hermes.git"
 ```
 
 ---

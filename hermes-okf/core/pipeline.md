@@ -50,18 +50,17 @@ Manages the lifecycle and state of a single pipeline execution.
 
 ## Execution Flow
 
-```
-Pipeline.create_run()
-    → computes cron window via croniter
-    → returns PipelineRun
-
-PipelineRun.run()
-    → for (source, destination) in product(sources, destinations):
-        → for table in source_tables:
-            → _execute_step(table, source, destination)
-                → source.extract(table, run_context)
-                → _process_extract(data, source, table, stage)
-                → destination.load(source_name, table, data)
+```mermaid
+flowchart TD
+    A["Pipeline.create_run()"] --> B["Compute cron window via croniter"]
+    B --> C["Return PipelineRun"]
+    C --> D{"For each (source, destination)\nin product(sources, destinations)"}
+    D --> E{"For each table\nin source_tables"}
+    E --> F["_execute_step(table, source, destination)"]
+    F --> G["source.extract(table, run_context)"]
+    G --> H["_process_extract(data, source, table, stage)"]
+    H --> I["destination.load(source_name, table, data)"]
+    I --> E
 ```
 
 ## Module-Level Functions

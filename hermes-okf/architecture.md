@@ -13,20 +13,21 @@ Hermes follows a **plugin-based Extract-Load (EL)** architecture. There is no tr
 
 ## High-Level Data Flow
 
-```
-┌─────────────┐     ┌──────────┐     ┌──────────────────┐
-│ YAML Config │────▶│ Pipeline │────▶│ PipelineRun      │
-│ (definitions│     │ (static) │     │ (execution state) │
-│  .json)     │     └──────────┘     └────────┬─────────┘
-└─────────────┘                               │
-                                              │ for each (source, destination) × tables
-                                              ▼
-                               ┌──────────────────────────┐
-                               │     _execute_step()      │
-                               │  1. Extract from source   │
-                               │  2. Process (if needed)   │
-                               │  3. Load to destination   │
-                               └──────────────────────────┘
+```mermaid
+flowchart LR
+    YAML["YAML Config\n(definitions.json)"] --> Pipeline["Pipeline\n(static config)"]
+    Pipeline --> PipelineRun["PipelineRun\n(execution state)"]
+    PipelineRun --> Step["_execute_step()"]
+    Step --> Extract["1. Extract from source"]
+    Extract --> Process["2. Process if needed"]
+    Process --> Load["3. Load to destination"]
+
+    subgraph "for each (source, destination) × tables"
+        Step
+        Extract
+        Process
+        Load
+    end
 ```
 
 ## Plugin System

@@ -84,9 +84,20 @@ class PipelineRun:
         self.errors = []
 
     def _process_extract(self, source_extract: Any, source_connector: Any, source_table_name: str, data_stage: str):
+        if not hasattr(source_connector, "_get_table_config"):
+            raise hermes_exceptions.SourceError(
+                source_connector.name,
+                f"Source connector {source_connector.name} does not implement _get_table_config()"
+            )
         table_config = source_connector._get_table_config(source_table_name)
-        data_key = table_config.get("data_key", "data")
-        
+        try:
+            data_key = table_config.get("data_key", "data")
+        except AttributeError:
+            raise hermes_exceptions.SourceError(
+                source_connector.name,
+                f"Source connector {source_connector.name} returned invalid table config for {source_table_name}"
+            )
+
         match data_stage:
             case "raw":
                 return source_extract[data_key]
@@ -132,7 +143,7 @@ class PipelineRun:
                 "source_table_name": source_table_name,
                 "destination_name": destination_connector.name,
             })
-        except hermes_exceptions.DestinationError as e:
+        except hermes_exceptions.HermesError as e:
             self._collect_error(source_connector.name, source_table_name, destination_connector.name, e)
 
     def run(self):
